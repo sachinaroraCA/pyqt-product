@@ -1,7 +1,9 @@
+from PyQt5.QtCore import QCoreApplication, QStringListModel, Qt
 from PyQt5.QtWidgets import (QApplication, QComboBox, QDialog,
                              QDialogButtonBox, QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
                              QLabel, QLineEdit, QMenu, QMenuBar, QPushButton, QSpinBox, QTextEdit,
-                             QVBoxLayout, QMessageBox, QFileDialog, QTableView, QFrame, QMainWindow)
+                             QVBoxLayout, QMessageBox, QFileDialog, QTableView, QFrame, QMainWindow, QCompleter,
+                             QListWidget, QAction, qApp)
 from PyQt5 import QtSql
 import pandas as pd
 import sys
@@ -9,12 +11,15 @@ import sys
 db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
 db.setDatabaseName('sports.db')
 
+
 class Dialog(QDialog):
     NumGridRows = 3
     NumButtons = 4
 
     def __init__(self):
         super(Dialog, self).__init__()
+
+        self.product_window = ProductWindow(self)
         self.createFormGroupBox()
         self.loginForm()
         mainLayout = QVBoxLayout()
@@ -28,6 +33,8 @@ class Dialog(QDialog):
         mainLayout.addWidget(self.formGroupBox2)
         # self.modulesLayout = modulesLayout
         self.btn_Submit.clicked.connect(self.submitButtonClicked)
+        self.btn_cancel.clicked.connect(self.cancelButtonClicked)
+        self.btn_products.clicked.connect(self.product_button_clicked)
         self.setLayout(mainLayout)
         self.setGeometry(200, 50, 500, 300)
         self.setWindowTitle("Financial Producut Analysis Tool - Login")
@@ -36,7 +43,6 @@ class Dialog(QDialog):
         self.formGroupBox2 = QGroupBox("")
         self.username = QLineEdit(self)
         self.QUserLabel = QLabel("USERNAME")
-
 
         self.password = QLineEdit(self)
         self.password.setEchoMode(QLineEdit.Password)
@@ -75,19 +81,12 @@ class Dialog(QDialog):
         layout.addRow(self.btn_Models, self.btn_Predictions)
         self.PredictionsFGBox.setLayout(layout)
 
-
     def submitButtonClicked(self):
-        print(str(self.username.text())  + "    ///   " + str(self.password.text()))
+        print(str(self.username.text()) + "    ///   " + str(self.password.text()))
 
         authenticate = self.auth_user(str(self.username.text()), str(self.password.text()))
         if authenticate:
-            # window = QMainWindow()
-            # widget = QWidget()
-            # widget.setLayout(self.modulesLayout)
-            # widget.show()
-            # window.setLayout(self.modulesLayout)
-
-            self.setWindowTitle("Financial Producut Analysis Tool - Modules")
+            self.setWindowTitle("Financial Product Analysis Tool - Modules")
             self.formGroupBox2.hide()
             self.ProductFGBox.show()
             self.TimeSeriesFGBox.show()
@@ -95,9 +94,11 @@ class Dialog(QDialog):
         else:
             QMessageBox.about(self, "Warning", "Invalid Username or Password !!!")
 
+    def cancelButtonClicked(self):
+        QCoreApplication.instance().quit()
 
-    # def cancelButtonClicked(self):
-
+    def product_button_clicked(self):
+        self.product_window.show()
 
     def openFileNameDialog(self):
         f_dialog = QFileDialog()
@@ -116,7 +117,6 @@ class Dialog(QDialog):
                 return False
             else:
                 return False
-
 
     def uploadCSV(self):
         result = self.openFileNameDialog()
@@ -140,24 +140,100 @@ class Dialog(QDialog):
             return True
         else:
             return False
-        #     print(query.value(0))
-        # result = query.value(0)
-        # print(result)
 
 
-# class dbConnect:
-#     def __init__(self, db):
-#         self.conn = sqlite3.connect(database=db)
-#
-#
-#     def close_conn(self, conn):
-#         conn.close()
+class ProductWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super(ProductWindow, self).__init__(parent)
+
+        bar = self.menuBar()
+        file = bar.addMenu("File")
+        edit = bar.addMenu("Edit")
+
+        save_action = QAction('Save', self)
+        save_action.setShortcut('Ctrl+S')
+
+        new_action = QAction('New', self)
+        new_action.setShortcut('Ctrl+N')
+
+        quit_action = QAction('Quit', self)
+        quit_action.setShortcut('Ctrl+Q')
+
+        find_action = QAction('Find', self)
+
+        replace_action = QAction('Replace', self)
+
+        file.addAction(new_action)
+        file.addAction(save_action)
+        file.addAction(quit_action)
+
+        edit.addAction(find_action)
+        edit.addAction(replace_action)
+
+        quit_action.triggered.connect(self.quit_trigger)
+
+        self.products_list_view()
+        mainLayout = QVBoxLayout()
+        PRODUCTS = ['A', 'B', 'C', 'D']
+        model = QStringListModel()
+        model.setStringList(PRODUCTS)
+
+        # listWidget.setDisabled(False)
+
+        # self.listWidget.show
+
+        completer = QCompleter()
+        completer.setModel(model)
+
+        self.line_edit = QLineEdit()
+        self.line_edit.setCompleter(completer)
+        self.btn_submit = QPushButton("Submit")
+
+        # self.group_box = QGroupBox("")
+        # self.search_bar()
+        mainLayout.addWidget(self.btn_submit)
+        self.setLayout(mainLayout)
+        self.setGeometry(300, 50, 800, 300)
+        self.setWindowTitle("Financial Product Analysis Tool - Product")
+        # self.show()
+
+
+    def products_list_view(self):
+        PRODUCTS = ["Ubuntu", "Fedora", "Kali", "Arch"]
+        listWidget = QListWidget()
+        listWidget.addItems(PRODUCTS)
+        # self.setCentralWidget(listWidget)
+
+    def quit_trigger(self):
+        self.hide()
+
+    def search_bar(self):
+        layout = QHBoxLayout()
+        PRODUCTS = ['A', 'B', 'C', 'D']
+        model = QStringListModel()
+        model.setStringList(PRODUCTS)
+
+        # listWidget.setDisabled(False)
+
+        # self.listWidget.show()
+
+        completer = QCompleter()
+        completer.setModel(model)
+
+        line_edit = QLineEdit()
+        line_edit.setCompleter(completer)
+        # line_edit.show()
+        layout.addWidget(line_edit)
+        self.group_box.setLayout(layout)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     dialog = Dialog()
 sys.exit(dialog.exec_())
+
+
+
 
 
 # def createDB():
