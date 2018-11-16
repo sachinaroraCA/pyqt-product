@@ -8,7 +8,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
-from windows.database_util import DatabaseConnect
 
 CATEGORY_A_CHOICES = ['1', '2']
 CATEGORY_B_CHOICES = ['A', 'B', 'C']
@@ -150,12 +149,43 @@ class Ui_ProductMainWindow(object):
 
     def btn_saveAndReturn_clicked(self):
 
-        self.save_product()
-        self.btn_back_clicked()
+        saved = self.save_product()
+        if saved:
+            self.btn_back_clicked()
 
     def btn_addAnother_clicked(self):
-        self.save_product()
-        self.clear_window()
+        saved = self.save_product()
+        if saved:
+            self.clear_window()
+
+    def btn_saveAndReturnUpdate_clicked(self):
+        updated = self.update_product()
+        if updated:
+            self.btn_back_clicked()
+
+    def update_product(self):
+        from windows.database_util import DatabaseConnect
+        conn = DatabaseConnect()
+
+        name = self.txt_name.text()
+        code = self.txt_code.text()
+        category_a = self.combo_category_A.currentText()
+        category_b = self.combo_category_B.currentText()
+        info_1 = self.txt_info1.text()
+        info_2 = self.txt_info_2.text()
+        info_3 = self.txt_info_3.text()
+        info_4 = self.txt_info_4.text()
+        info_5 = self.txt_info_5.text()
+        info_6 = self.txt_info_6.text()
+        info_7 = self.txt_info_7.toPlainText()
+        if name and code:
+            conn.update_product_record(name, code, category_a, category_b, info_1, info_2, info_3, info_4, info_5, info_6, info_7)
+            QMessageBox.about(QMessageBox(), "info", "Product is updated Successfully !!!")
+            return True
+        else:
+            QMessageBox.about(QMessageBox(), "warning", "Fill name and code !!!")
+            return False
+
 
     def save_product(self):
         from windows.database_util import DatabaseConnect
@@ -172,15 +202,19 @@ class Ui_ProductMainWindow(object):
         info_5 = self.txt_info_5.text()
         info_6 = self.txt_info_6.text()
         info_7 = self.txt_info_7.toPlainText()
-        conn.save_product_record(name, code, category_a, category_b, info_1, info_2, info_3, info_4, info_5, info_6, info_7)
-
-        QMessageBox.about(QMessageBox(), "info", "Product is added Successfully !!!")
+        if name and code:
+            conn.save_product_record(name, code, category_a, category_b, info_1, info_2, info_3, info_4, info_5, info_6, info_7)
+            QMessageBox.about(QMessageBox(), "info", "Product is added Successfully !!!")
+            return True
+        else:
+            QMessageBox.about(QMessageBox(), "warning", "Fill name and code !!!")
+            return False
 
     def clear_window(self):
         self.txt_name.setText("")
         self.txt_code.setText("")
-        self.combo_category_A.currentText()
-        self.combo_category_B.currentText()
+        self.combo_category_A.setCurrentText("1")
+        self.combo_category_B.setCurrentText("A")
         self.txt_info1.setText("")
         self.txt_info_2.setText("")
         self.txt_info_3.setText("")
@@ -188,8 +222,6 @@ class Ui_ProductMainWindow(object):
         self.txt_info_5.setText("")
         self.txt_info_6.setText("")
         self.txt_info_7.setText("")
-
-
 
 
 # if __name__ == "__main__":
@@ -200,4 +232,4 @@ class Ui_ProductMainWindow(object):
 #     # ui.setupUi(MainWindow)
 #     MainWindow.show()
 #     sys.exit(app.exec_())
-#
+

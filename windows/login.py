@@ -38,9 +38,8 @@ class Ui_LoginWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        from windows.modules import ProductModulesWindow
-        self.modules_window = ProductModulesWindow()
         self.btn_login.clicked.connect(self.loginButtonClicked)
+        self.btn_exit.clicked.connect(self.temp_window.close)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -56,15 +55,13 @@ class Ui_LoginWindow(object):
     def loginButtonClicked(self):
         print(str(self.combo_username.currentText()) + "    ///   " + str(self.txt_secret_code.text()))
 
-        authenticate = self.auth_user(str(self.combo_username.currentText()).strip(), str(self.txt_secret_code.text()))
-        if authenticate:
+        authenticated = self.auth_user(str(self.combo_username.currentText()).strip(), str(self.txt_secret_code.text()))
+        if authenticated:
             print("authenticated")
+            from windows.modules import ProductModulesWindow
+            self.modules_window = ProductModulesWindow(parent=self.temp_window)
             self.modules_window.show()
             self.temp_window.hide()
-
-        else:
-            QMessageBox.about(QMessageBox(), "Warning", "Invalid Username or Password !!!")
-            print("Invalid username")
 
     def auth_user(self, un, password):
         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
@@ -84,7 +81,7 @@ class Ui_LoginWindow(object):
             # QMessageBox.about(QMessageBox(), "Greetings", "Successfully logged in")
             return True
         else:
-            QMessageBox.about(QMessageBox(), "Warning", "Invalid Username or Password !!!")
+            QMessageBox.about(QMessageBox(), "Warning", "Invalid Secret code !!!")
             db.close()
             return False
 
@@ -107,7 +104,6 @@ class Ui_LoginWindow(object):
         return user_list
 
 
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -115,4 +111,3 @@ if __name__ == "__main__":
     ui = Ui_LoginWindow(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

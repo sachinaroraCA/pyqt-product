@@ -13,6 +13,7 @@ class Ui_ProductModulesWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(622, 412)
+        self.temp_window =MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBoxProducts = QtWidgets.QGroupBox(self.centralwidget)
@@ -71,7 +72,7 @@ class Ui_ProductModulesWindow(object):
 
     def btn_products_clicked(self):
         from windows.product_module import ProductWindow
-        self.product_window = ProductWindow()
+        self.product_window = ProductWindow(parent=self.temp_window)
         self.product_window.show()
 
 

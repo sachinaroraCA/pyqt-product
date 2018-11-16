@@ -86,7 +86,8 @@ class DatabaseConnect:
         db.close()
         return query.isValid()
 
-    def get_cloumns_list(self):
+    def update_product_record(self, name, code, category_a, category_b, info_1='', info_2='', info_3='', info_4='',
+                            info_5='', info_6='', info_7=''):
         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
         db.setDatabaseName('sports.db')
         if not db.open():
@@ -94,14 +95,24 @@ class DatabaseConnect:
             return False
 
         query = QtSql.QSqlQuery()
-        query_str = "select * from Product"
+        query_str= "UPDATE Product SET Name='{name}', Category_A='{category_a}', Category_B='{category_b}', "\
+                   "info_1='{info_1}', info_2='{info_2}', info_3='{info_3}', info_4='{info_4}', info_5='{info_5}', " \
+                   "info_6='{info_6}', info_7='{info_7}' WHERE Code='{code}'".format(name=name,
+                                                                                     code=code,
+                                                                                     category_a=category_a,
+                                                                                     category_b=category_b,
+                                                                                     info_1=info_1,
+                                                                                     info_2=info_2,
+                                                                                     info_3=info_3,
+                                                                                     info_4=info_4,
+                                                                                     info_5=info_5,
+                                                                                     info_6=info_6,
+                                                                                     info_7=info_7
+                                                                                     )
+        print("query_str:::::" + query_str)
         query.exec_(query_str)
-        query.next()
-        columns = query.record().fieldName(0)
-        print(columns)
-
-conn = DatabaseConnect()
-conn.get_cloumns_list()
+        db.close()
+        return query.isValid()
 
 #     def get_product_details(self, product_name):
 #         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
