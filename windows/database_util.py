@@ -114,6 +114,27 @@ class DatabaseConnect:
         db.close()
         return query.isValid()
 
+    def get_products(self):
+        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+        db.setDatabaseName('sports.db')
+        product_list = []
+        productcode_list = []
+        if not db.open():
+            print("not created")
+            return False
+
+        query = QtSql.QSqlQuery()
+        query.exec_("select Name,Code from Product")
+
+        while query.next():
+            print(query.value(0))
+            product_list.append(query.value(0))
+            productcode_list.append(query.value(1))
+        db.close()
+        self.productcode_list = productcode_list
+        return product_list
+
+
 #     def get_product_details(self, product_name):
 #         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
 #         db.setDatabaseName('sports.db')

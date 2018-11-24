@@ -7,12 +7,10 @@ class ProductWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ProductWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Product")
-        # parent.ui.temp_window.hide()
         self.ui = Ui_MainWindow(self)
 
 
 class Ui_MainWindow(object):
-
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(615, 439)
@@ -20,16 +18,11 @@ class Ui_MainWindow(object):
         self.products_list = self.get_products()
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.model = QStringListModel(self.centralwidget)
-        self.model.setStringList(self.products_list)
-        self.completer = QCompleter(self.centralwidget)
-        self.completer.setModel(self.model)
-        self.completer.activated.connect(self.itemActivated_event)
         self.txt_search = QtWidgets.QLineEdit(self.centralwidget)
         self.txt_search.setPlaceholderText("  Search")
         self.txt_search.setGeometry(QtCore.QRect(50, 60, 329, 25))
         self.txt_search.setObjectName("txt_search")
-        self.txt_search.setCompleter(self.completer)
+        # self.txt_search.setCompleter(self.completer)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setGeometry(QtCore.QRect(380, 40, 131, 151))
         self.groupBox.setTitle("")
@@ -83,6 +76,7 @@ class Ui_MainWindow(object):
         self.btn_delete.clicked.connect(self.btn_delete_clicked)
         self.btn_modify.clicked.connect(self.btn_modify_clicked)
         self.btn_export.clicked.connect(self.btn_export_clicked)
+        self.txt_search.textChanged.connect(self.filterClicked)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -100,47 +94,52 @@ class Ui_MainWindow(object):
     def btn_delete_clicked(self):
         result = [x.row() for x in self.listWidget.selectedIndexes()]
         product_code = self.productcode_list[result[0]]
-        self.delete_product_bycode(product_code)
+        product_name = self.products_list[result[0]]
+        self.delete_product_byname(product_name)
         self.productcode_list.remove(product_code)
-        self.products_list.remove(result[0])
-        self.listWidget.removeItemWidget([x for x in self.listWidget.selectedItems()][0])
+        self.products_list.remove(product_name)
+        self.listWidget.clear()
+        self.listWidget.addItems(self.products_list)
+        # self.listWidget.itemClicked.connect(self.list_item_event)
         self.scrollArea.setWidget(self.listWidget)
+        self.txt_overview.clear()
 
     def btn_modify_clicked(self):
         result = [x.row() for x in self.listWidget.selectedIndexes()]
-        product_code = self.productcode_list[result[0]]
-        product_detail_dict = self.get_product_details(product_code=product_code)[1]
-        print(product_detail_dict)
-        from windows.add_product_main import AddNewProductWindow
-        self.add_new = AddNewProductWindow()
-        if "Name" in product_detail_dict:
-            self.add_new.ui.txt_name.setText(product_detail_dict["Name"])
-        if "Code" in product_detail_dict:
-            self.add_new.ui.txt_code.setText(product_detail_dict["Code"])
-        if "Category_A" in product_detail_dict:
-            self.add_new.ui.combo_category_A.setCurrentText(product_detail_dict["Category_A"])
-        if "Category_B" in product_detail_dict:
-            self.add_new.ui.combo_category_B.setCurrentText(product_detail_dict["Category_B"])
-        if "info_1" in product_detail_dict:
-            self.add_new.ui.txt_info1.setText(product_detail_dict["info_1"])
-        if "info_2" in product_detail_dict:
-            self.add_new.ui.txt_info_2.setText(product_detail_dict["info_2"])
-        if "info_3" in product_detail_dict:
-            self.add_new.ui.txt_info_3.setText(product_detail_dict["info_3"])
-        if "info_4" in product_detail_dict:
-            self.add_new.ui.txt_info_4.setText(product_detail_dict["info_4"])
-        if "info_5" in product_detail_dict:
-            self.add_new.ui.txt_info_5.setText(product_detail_dict["info_5"])
-        if "info_6" in product_detail_dict:
-            self.add_new.ui.txt_info_6.setText(product_detail_dict["info_6"])
-        if "info_7" in product_detail_dict:
-            self.add_new.ui.txt_info_7.setPlainText(product_detail_dict["info_7"])
-        self.add_new.setWindowTitle("Financial Financial Product Analysis Tool - Product:Update")
-        self.add_new.ui.btn_addAnother.hide()
-        self.add_new.ui.btn_saveAndReturn.clicked.disconnect(self.add_new.ui.btn_saveAndReturn_clicked)
-        self.add_new.ui.btn_saveAndReturn.clicked.connect(self.add_new.ui.btn_saveAndReturnUpdate_clicked)
+        if result:
+            # product_code = self.productcode_list[result[0]]
+            product_detail_dict = self.get_product_details(product_name=self.selected_product)[1]
+            print(product_detail_dict)
+            from windows.add_product_main import AddNewProductWindow
+            self.modify_win = AddNewProductWindow()
+            if "Name" in product_detail_dict:
+                self.modify_win.ui.txt_name.setText(product_detail_dict["Name"])
+            if "Code" in product_detail_dict:
+                self.modify_win.ui.txt_code.setText(product_detail_dict["Code"])
+            if "Category_A" in product_detail_dict:
+                self.modify_win.ui.combo_category_A.setCurrentText(product_detail_dict["Category_A"])
+            if "Category_B" in product_detail_dict:
+                self.modify_win.ui.combo_category_B.setCurrentText(product_detail_dict["Category_B"])
+            if "info_1" in product_detail_dict:
+                self.modify_win.ui.txt_info1.setText(product_detail_dict["info_1"])
+            if "info_2" in product_detail_dict:
+                self.modify_win.ui.txt_info_2.setText(product_detail_dict["info_2"])
+            if "info_3" in product_detail_dict:
+                self.modify_win.ui.txt_info_3.setText(product_detail_dict["info_3"])
+            if "info_4" in product_detail_dict:
+                self.modify_win.ui.txt_info_4.setText(product_detail_dict["info_4"])
+            if "info_5" in product_detail_dict:
+                self.modify_win.ui.txt_info_5.setText(product_detail_dict["info_5"])
+            if "info_6" in product_detail_dict:
+                self.modify_win.ui.txt_info_6.setText(product_detail_dict["info_6"])
+            if "info_7" in product_detail_dict:
+                self.modify_win.ui.txt_info_7.setPlainText(product_detail_dict["info_7"])
+            self.modify_win.setWindowTitle("Financial Financial Product Analysis Tool - Product:Update")
+            self.modify_win.ui.btn_addAnother.hide()
+            self.modify_win.ui.btn_saveAndReturn.clicked.disconnect(self.modify_win.ui.btn_saveAndReturn_clicked)
+            self.modify_win.ui.btn_saveAndReturn.clicked.connect(self.modify_win.ui.btn_saveAndReturnUpdate_clicked)
 
-        self.add_new.show()
+            self.modify_win.show()
 
     def btn_export_clicked(self):
         file_dailog = QFileDialog()
@@ -166,7 +165,19 @@ class Ui_MainWindow(object):
         self.listWidget.addItems(self.products_list)
         self.scrollArea.setWidget(self.listWidget)
 
-    def delete_product_bycode(self, code):
+    def filterClicked(self):
+        filter_text = str(self.txt_search.text()).lower()
+        filtered_list = []
+        for item in self.products_list:
+            if filter_text in item.lower():
+                filtered_list.append(item)
+
+        self.listWidget.clear()
+        self.listWidget.addItems(filtered_list)
+        # self.listWidget.itemClicked.connect(self.list_item_event)
+        self.scrollArea.setWidget(self.listWidget)
+
+    def delete_product_byname(self, name):
         db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
         db.setDatabaseName('sports.db')
         if not db.open():
@@ -174,7 +185,7 @@ class Ui_MainWindow(object):
             return False
 
         query = QtSql.QSqlQuery()
-        query.exec_("DELETE FROM Product WHERE Code='{code}'".format(code=code))
+        query.exec_("DELETE FROM Product WHERE Name='{name}'".format(name=name))
 
         if query.isValid():
             db.close()
@@ -209,6 +220,7 @@ class Ui_MainWindow(object):
         db.setDatabaseName('sports.db')
         product_string = ""
         product_detail_dict = {}
+        self.selected_product = product_name
 
         if not db.open():
             print("not created")
@@ -234,28 +246,28 @@ class Ui_MainWindow(object):
 
     def list_item_event(self, item):
         print(repr(item.text()))
-        item_detail = self.get_product_details(item.text())
+        item_detail = self.get_product_details(product_name=item.text())
+        self.selected_product = item.text()
         self.txt_overview.setPlainText(item_detail[0])
-        self.txt_search.setText("")
+        # self.txt_search.setText("")
 
-    def itemActivated_event(self, item):
-        print(item)
-        item_detail = self.get_product_details(item)
-        self.txt_overview.setPlainText(item_detail[0])
-        # self.listWidget.
+    # def itemActivated_event(self, item):
+    #     print(item)
+    #     item_detail = self.get_product_details(item)
+    #     self.txt_overview.setPlainText(item_detail[0])
 
     def open_addNew(self):
         from windows.add_product_main import AddNewProductWindow
-        self.add_new = AddNewProductWindow(parent=self.temp_window)
+        self.add_new = AddNewProductWindow()
         self.add_new.show()
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow(MainWindow)
-    # ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     MainWindow = QtWidgets.QMainWindow()
+#     ui = Ui_MainWindow(MainWindow)
+#     # ui.setupUi(MainWindow)
+#     MainWindow.show()
+#     sys.exit(app.exec_())
 

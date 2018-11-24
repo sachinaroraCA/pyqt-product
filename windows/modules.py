@@ -53,6 +53,11 @@ class Ui_ProductModulesWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.btn_products.clicked.connect(self.btn_products_clicked)
+        self.btn_evaluation.clicked.connect(self.btn_evaluation_clicked)
+        self.btn_time_series.clicked.connect(self.btn_time_series_clicked)
+        self.btn_analysis.clicked.connect(self.btn_analysis_clicked)
+        self.btn_model.clicked.connect(self.btn_models_clicked)
+        self.btn_prediction.clicked.connect(self.btn_prediction_clicked)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -74,6 +79,31 @@ class Ui_ProductModulesWindow(object):
         from windows.product_module import ProductWindow
         self.product_window = ProductWindow(parent=self.temp_window)
         self.product_window.show()
+
+    def btn_evaluation_clicked(self):
+        from  windows.evaluation_module import EvaluationWindow
+        self.evaluation_window = EvaluationWindow(parent=self.temp_window)
+        self.evaluation_window.show()
+
+    def btn_time_series_clicked(self):
+        from  windows.time_series_module import TimeSeriesWindow
+        self.timeseries_window = TimeSeriesWindow(parent=self.temp_window)
+        self.timeseries_window.show()
+
+    def btn_analysis_clicked(self):
+        from  windows.analysis_module import AnalysisWindow
+        self.analysis_window = AnalysisWindow(parent=self.temp_window)
+        self.analysis_window.show()
+
+    def btn_models_clicked(self):
+        from windows.models_module import ModelWindow
+        self.model_window = ModelWindow(parent=self.temp_window)
+        self.model_window.show()
+
+    def btn_prediction_clicked(self):
+        from windows.prediction_module import PredictionWindow
+        self.prediction_window = PredictionWindow(parent=self.temp_window)
+        self.prediction_window.show()
 
 
 # if __name__ == "__main__":

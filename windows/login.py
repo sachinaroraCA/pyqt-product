@@ -78,7 +78,6 @@ class Ui_LoginWindow(object):
         if query.next():
             print("logged in")
             db.close()
-            # QMessageBox.about(QMessageBox(), "Greetings", "Successfully logged in")
             return True
         else:
             QMessageBox.about(QMessageBox(), "Warning", "Invalid Secret code !!!")
@@ -102,12 +101,3 @@ class Ui_LoginWindow(object):
             user_list.append(query.value(0))
         db.close()
         return user_list
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_LoginWindow(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
