@@ -1,13 +1,5 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'ui_collection/evalutuation_module.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QListWidget, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QListWidget, QMessageBox, QListWidgetItem
 from windows.database_util import DatabaseConnect
 
 
@@ -102,12 +94,15 @@ class Ui_MainWindow(object):
         if self.selected_product:
             from windows.evaluation_evaluate import EvaluationEvaluateWindow
             self.evaluation_evaluate_win = EvaluationEvaluateWindow(parent=self.temp_window)
+            self.evaluation_evaluate_win.ui.selected_product = self.selected_product
+            self.evaluation_evaluate_win.ui.selected_productId = self.selected_productId
             self.evaluation_evaluate_win.ui.lbl_prduct.setText("  "+self.selected_product + " :")
-            self.evaluation_evaluate_win.selected_product = self.selected_product
+            self.evaluation_evaluate_win.ui.lbl_prduct.setFixedHeight(20)
             self.evaluation_evaluate_win.show()
 
     def list_item_event(self, item):
         self.selected_product = item.text()
+        self.selected_productId = item.data(1)
 
     def filterClicked(self):
         filter_text = str(self.txt_search.text()).lower()
@@ -122,20 +117,27 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.listWidget)
 
     def btn_reset_clicked(self):
-        self.reset_record()
+        self.reset_record(self.selected_productId)
 
     def btn_return_clicked(self):
         self.temp_window.hide()
 
-    def reset_record(self):
-
-        pass
+    def reset_record(self, id):
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        db.delete_evaluation(product_id=id)
 
     def products_list_view(self):
         db = DatabaseConnect()
-        self.products_list = db.get_products()
+        self.products_list, self.productId_list = db.get_products()
         self.listWidget = QListWidget()
-        self.listWidget.addItems(self.products_list)
+        index =0
+        for item in self.productId_list:
+            listitem = QListWidgetItem()
+            listitem.setData(1, item)
+            listitem.setText(self.products_list[index])
+            index += 1
+            self.listWidget.addItem(listitem)
         self.scrollArea.setWidget(self.listWidget)
 
 

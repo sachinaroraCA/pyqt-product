@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets, QtSql
 from PyQt5.QtCore import QStringListModel
 from PyQt5.QtWidgets import QListWidget, QCompleter, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QListWidgetItem
 
 
 class ProductWindow(QMainWindow):
@@ -76,7 +77,7 @@ class Ui_MainWindow(object):
         self.btn_delete.clicked.connect(self.btn_delete_clicked)
         self.btn_modify.clicked.connect(self.btn_modify_clicked)
         self.btn_export.clicked.connect(self.btn_export_clicked)
-        self.txt_search.textChanged.connect(self.filterClicked)
+        self.txt_search.textChanged.connect(self.search_products)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -92,12 +93,9 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(_translate("MainWindow", "Overview"))
 
     def btn_delete_clicked(self):
-        result = [x.row() for x in self.listWidget.selectedIndexes()]
-        product_code = self.productcode_list[result[0]]
-        product_name = self.products_list[result[0]]
-        self.delete_product_byname(product_name)
-        self.productcode_list.remove(product_code)
-        self.products_list.remove(product_name)
+        self.delete_product_byId(self.selected_productId)
+        # self.productId_list.remove(product_code)
+        self.products_list.remove(self.selected_product)
         self.listWidget.clear()
         self.listWidget.addItems(self.products_list)
         # self.listWidget.itemClicked.connect(self.list_item_event)
@@ -107,33 +105,32 @@ class Ui_MainWindow(object):
     def btn_modify_clicked(self):
         result = [x.row() for x in self.listWidget.selectedIndexes()]
         if result:
-            # product_code = self.productcode_list[result[0]]
-            product_detail_dict = self.get_product_details(product_name=self.selected_product)[1]
-            print(product_detail_dict)
+            product_detail_dict = self.product_detail_dict
             from windows.add_product_main import AddNewProductWindow
-            self.modify_win = AddNewProductWindow()
-            if "Name" in product_detail_dict:
-                self.modify_win.ui.txt_name.setText(product_detail_dict["Name"])
-            if "Code" in product_detail_dict:
-                self.modify_win.ui.txt_code.setText(product_detail_dict["Code"])
-            if "Category_A" in product_detail_dict:
-                self.modify_win.ui.combo_category_A.setCurrentText(product_detail_dict["Category_A"])
-            if "Category_B" in product_detail_dict:
-                self.modify_win.ui.combo_category_B.setCurrentText(product_detail_dict["Category_B"])
-            if "info_1" in product_detail_dict:
-                self.modify_win.ui.txt_info1.setText(product_detail_dict["info_1"])
-            if "info_2" in product_detail_dict:
-                self.modify_win.ui.txt_info_2.setText(product_detail_dict["info_2"])
-            if "info_3" in product_detail_dict:
-                self.modify_win.ui.txt_info_3.setText(product_detail_dict["info_3"])
-            if "info_4" in product_detail_dict:
-                self.modify_win.ui.txt_info_4.setText(product_detail_dict["info_4"])
-            if "info_5" in product_detail_dict:
-                self.modify_win.ui.txt_info_5.setText(product_detail_dict["info_5"])
-            if "info_6" in product_detail_dict:
-                self.modify_win.ui.txt_info_6.setText(product_detail_dict["info_6"])
-            if "info_7" in product_detail_dict:
-                self.modify_win.ui.txt_info_7.setPlainText(product_detail_dict["info_7"])
+            self.modify_win = AddNewProductWindow(parent=self.temp_window)
+            self.modify_win.ui.product_id = self.product_detail_dict["id"]
+            if "name" in product_detail_dict:
+                self.modify_win.ui.txt_name.setText(product_detail_dict["name"])
+            if "code" in product_detail_dict:
+                self.modify_win.ui.txt_code.setText(product_detail_dict["code"])
+            if "categorya" in product_detail_dict:
+                self.modify_win.ui.combo_category_A.setCurrentText(product_detail_dict["categorya"])
+            if "categoryb" in product_detail_dict:
+                self.modify_win.ui.combo_category_B.setCurrentText(product_detail_dict["categoryb"])
+            if "info1" in product_detail_dict:
+                self.modify_win.ui.txt_info1.setText(product_detail_dict["info1"])
+            if "info2" in product_detail_dict:
+                self.modify_win.ui.txt_info_2.setText(product_detail_dict["info2"])
+            if "info3" in product_detail_dict:
+                self.modify_win.ui.txt_info_3.setText(product_detail_dict["info3"])
+            if "info4" in product_detail_dict:
+                self.modify_win.ui.txt_info_4.setText(product_detail_dict["info4"])
+            if "info5" in product_detail_dict:
+                self.modify_win.ui.txt_info_5.setText(product_detail_dict["info5"])
+            if "info6" in product_detail_dict:
+                self.modify_win.ui.txt_info_6.setText(product_detail_dict["info6"])
+            if "info7" in product_detail_dict:
+                self.modify_win.ui.txt_info_7.setPlainText(product_detail_dict["info7"])
             self.modify_win.setWindowTitle("Financial Financial Product Analysis Tool - Product:Update")
             self.modify_win.ui.btn_addAnother.hide()
             self.modify_win.ui.btn_saveAndReturn.clicked.disconnect(self.modify_win.ui.btn_saveAndReturn_clicked)
@@ -162,92 +159,60 @@ class Ui_MainWindow(object):
 
     def products_list_view(self):
         self.listWidget = QListWidget()
-        self.listWidget.addItems(self.products_list)
+        index =0
+        for item in self.productId_list:
+            listitem = QListWidgetItem()
+            listitem.setText(self.products_list[index])
+            listitem.setData(1, item)
+            index += 1
+            self.listWidget.addItem(listitem)
         self.scrollArea.setWidget(self.listWidget)
 
-    def filterClicked(self):
-        filter_text = str(self.txt_search.text()).lower()
-        filtered_list = []
-        for item in self.products_list:
-            if filter_text in item.lower():
-                filtered_list.append(item)
+    def search_products(self):
+        filter_text = self.txt_search.text().lower()
+        # filtered_list = []
+        # for item in self.products_list:
+        #     if filter_text in item.lower():
+        #         filtered_list.append(item)
 
-        self.listWidget.clear()
-        self.listWidget.addItems(filtered_list)
-        # self.listWidget.itemClicked.connect(self.list_item_event)
+        self.filtered_list = self.listWidget.findItems(filter_text, QtCore.Qt.MatchStartsWith)
+        new_list_widget = QListWidget(self.scrollArea)
+
+        index = 0
+        for item in self.filtered_list:
+            self.listWidget.removeItemWidget(item)
+            # listitem = QListWidgetItem()
+            # listitem.setText(item.text())
+            # listitem.setData(1, item.data(1))
+            # index += 1
+            # new_list_widget.addItem(listitem)
+        # # listWidget.itemClicked.connect(self.list_item_event)
         self.scrollArea.setWidget(self.listWidget)
 
-    def delete_product_byname(self, name):
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName('sports.db')
-        if not db.open():
-            print("not created")
-            return False
-
-        query = QtSql.QSqlQuery()
-        query.exec_("DELETE FROM Product WHERE Name='{name}'".format(name=name))
-
-        if query.isValid():
-            db.close()
-            return True
-        else:
-            db.close()
-            return False
+    def delete_product_byId(self, id):
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        result = db.delete_product(id)
+        return result
 
     def get_products(self):
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName('sports.db')
-        product_list = []
-        productcode_list = []
-        if not db.open():
-            print("not created")
-            return False
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        self.products_list, self.productId_list = db.get_products()
+        return self.products_list
 
-        query = QtSql.QSqlQuery()
-        query.exec_("select Name,Code from Product")
-
-        while query.next():
-            print(query.value(0))
-            product_list.append(query.value(0))
-            productcode_list.append(query.value(1))
-        db.close()
-        self.productcode_list = productcode_list
-        return product_list
-
-    def get_product_details(self, product_name=None, product_code=None):
-
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName('sports.db')
-        product_string = ""
-        product_detail_dict = {}
-        self.selected_product = product_name
-
-        if not db.open():
-            print("not created")
-            return False
-
-        query = QtSql.QSqlQuery()
-        if product_name:
-            query.exec_("select * from Product where Name = '{name}'".format(name=product_name))
-        elif product_code:
-            query.exec_("select * from Product where Code = '{code}'".format(code=product_code))
-
-        if query.next():
-            size = query.record().count()
-            for index in range(0, size):
-                # print(query.value(index))
-                if query.value(index) != "" and query.value(index):
-                    product_string += str(query.record().fieldName(index))+ ':  ' + str(query.value(index)) + "\n"
-                    product_detail_dict.update({str(query.record().fieldName(index)): str(query.value(index))})
-            print(product_string)
-        self.product_detail_dict = product_detail_dict
-        db.close()
-        return product_string, product_detail_dict
+    def get_product_details(self, id):
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        product_string, self.product_detail_dict = db.get_product_details(id)
+        return product_string, self.product_detail_dict
 
     def list_item_event(self, item):
         print(repr(item.text()))
-        item_detail = self.get_product_details(product_name=item.text())
         self.selected_product = item.text()
+        self.selected_productId = item.data(1)
+        print(self.selected_productId)
+        item_detail = self.get_product_details(id=self.selected_productId)
         self.txt_overview.setPlainText(item_detail[0])
         # self.txt_search.setText("")
 

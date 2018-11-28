@@ -166,26 +166,30 @@ class Ui_ProductMainWindow(object):
     def update_product(self):
         from windows.database_util import DatabaseConnect
         conn = DatabaseConnect()
-
         name = self.txt_name.text()
         code = self.txt_code.text()
-        category_a = self.combo_category_A.currentText()
-        category_b = self.combo_category_B.currentText()
-        info_1 = self.txt_info1.text()
-        info_2 = self.txt_info_2.text()
-        info_3 = self.txt_info_3.text()
-        info_4 = self.txt_info_4.text()
-        info_5 = self.txt_info_5.text()
-        info_6 = self.txt_info_6.text()
-        info_7 = self.txt_info_7.toPlainText()
+        categorya = self.combo_category_A.currentText()
+        categoryb = self.combo_category_B.currentText()
+        info1 = self.txt_info1.text()
+        info2 = self.txt_info_2.text()
+        info3 = self.txt_info_3.text()
+        info4 = self.txt_info_4.text()
+        info5 = self.txt_info_5.text()
+        info6 = self.txt_info_6.text()
+        info7 = self.txt_info_7.toPlainText()
+        id = self.product_id
         if name and code:
-            conn.update_product_record(name, code, category_a, category_b, info_1, info_2, info_3, info_4, info_5, info_6, info_7)
+            conn.update_product_record(id=id, name=name, code=code, categorya=categorya, categoryb=categoryb, info1=info1,
+                                       info2=info2, info3=info3, info4=info4, info5=info5, info6=info6, info7=info7)
             QMessageBox.about(QMessageBox(), "info", "Product is updated Successfully !!!")
+            # print(self.temp_window.parent())
+            # self.temp_window.parent().ui.get_products()
+            # self.temp_window.parent().ui.products_list_view()
+            # self.temp_window.parent().show()
             return True
         else:
             QMessageBox.about(QMessageBox(), "warning", "Fill name and code !!!")
             return False
-
 
     def save_product(self):
         from windows.database_util import DatabaseConnect
