@@ -72,7 +72,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.products_list_view()
-        self.listWidget.itemClicked.connect(self.list_item_event)
+        # self.listWidget.itemClicked.connect(self.list_item_event)
         self.btn_addNew.clicked.connect(self.open_addNew)
         self.btn_delete.clicked.connect(self.btn_delete_clicked)
         self.btn_modify.clicked.connect(self.btn_modify_clicked)
@@ -96,10 +96,8 @@ class Ui_MainWindow(object):
         self.delete_product_byId(self.selected_productId)
         # self.productId_list.remove(product_code)
         self.products_list.remove(self.selected_product)
-        self.listWidget.clear()
-        self.listWidget.addItems(self.products_list)
-        # self.listWidget.itemClicked.connect(self.list_item_event)
-        self.scrollArea.setWidget(self.listWidget)
+        self.productId_list.remove(self.selected_productId)
+        self.products_list_view()
         self.txt_overview.clear()
 
     def btn_modify_clicked(self):
@@ -157,17 +155,6 @@ class Ui_MainWindow(object):
 
         output_file.close()
 
-    def products_list_view(self):
-        self.listWidget = QListWidget()
-        index =0
-        for item in self.productId_list:
-            listitem = QListWidgetItem()
-            listitem.setText(self.products_list[index])
-            listitem.setData(1, item)
-            index += 1
-            self.listWidget.addItem(listitem)
-        self.scrollArea.setWidget(self.listWidget)
-
     def search_products(self):
         filter_text = self.txt_search.text().lower()
         # filtered_list = []
@@ -207,6 +194,18 @@ class Ui_MainWindow(object):
         product_string, self.product_detail_dict = db.get_product_details(id)
         return product_string, self.product_detail_dict
 
+    def products_list_view(self):
+        self.listWidget = QListWidget()
+        index =0
+        for item in self.productId_list:
+            listitem = QListWidgetItem()
+            listitem.setText(self.products_list[index])
+            listitem.setData(1, item)
+            index += 1
+            self.listWidget.addItem(listitem)
+        self.listWidget.itemClicked.connect(self.list_item_event)
+        self.scrollArea.setWidget(self.listWidget)
+
     def list_item_event(self, item):
         print(repr(item.text()))
         self.selected_product = item.text()
@@ -214,12 +213,6 @@ class Ui_MainWindow(object):
         print(self.selected_productId)
         item_detail = self.get_product_details(id=self.selected_productId)
         self.txt_overview.setPlainText(item_detail[0])
-        # self.txt_search.setText("")
-
-    # def itemActivated_event(self, item):
-    #     print(item)
-    #     item_detail = self.get_product_details(item)
-    #     self.txt_overview.setPlainText(item_detail[0])
 
     def open_addNew(self):
         from windows.add_product_main import AddNewProductWindow

@@ -64,40 +64,12 @@ class Ui_LoginWindow(object):
             self.temp_window.hide()
 
     def auth_user(self, un, password):
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName('sports.db')
-        if not db.open():
-            print("not created")
-            return False
-
-        query = QtSql.QSqlQuery()
-        query.exec_("select username from user where username = '{username}' and password = '{password}'".format(
-            username=un,
-            password=password))
-
-        if query.next():
-            print("logged in")
-            db.close()
-            return True
-        else:
-            QMessageBox.about(QMessageBox(), "Warning", "Invalid Secret code !!!")
-            db.close()
-            return False
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        return db.auth_user(un, password)
 
     def get_users(self):
-        db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-        db.setDatabaseName('sports.db')
-        user_list = []
-
-        if not db.open():
-            print("not created")
-            return False
-
-        query = QtSql.QSqlQuery()
-        query.exec_("select username from user")
-        print(query.result())
-        while query.next():
-            print(query.value(0))
-            user_list.append(query.value(0))
-        db.close()
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        user_list = db.get_users()
         return user_list

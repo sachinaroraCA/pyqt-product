@@ -95,6 +95,8 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.timeseries_list_view()
+
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -118,13 +120,32 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index9), _translate("MainWindow", "index9"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index10), _translate("MainWindow", "index10"))
 
+    def timeseries_list_view(self):
+        from windows.database_util import DatabaseConnect
+        db = DatabaseConnect()
+        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses()
+        self.timeseries_listWidget = QtWidgets.QListWidget()
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     MainWindow = QtWidgets.QMainWindow()
-#     ui = Ui_MainWindow()
-#     ui.__init__(MainWindow)
-#     MainWindow.show()
-#     sys.exit(app.exec_())
-#
+        index = 0
+        for item in self.timeseriesId_list:
+            listitem = QtWidgets.QListWidgetItem()
+            listitem.setText(self.timeseries_list[index])
+            listitem.setData(1, item)
+            index += 1
+            self.timeseries_listWidget.addItem(listitem)
+        self.timeseries_listWidget.itemClicked.connect(self.timeseries_list_item_event)
+        self.scrollArea_timeseries.setWidget(self.timeseries_listWidget)
+
+    def timeseries_list_item_event(self, item):
+        self.selected_timeseries = item.text()
+        self.selected_timeseriesId = item.data(1)
+        print(self.selected_timeseries, self.selected_timeseriesId)
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

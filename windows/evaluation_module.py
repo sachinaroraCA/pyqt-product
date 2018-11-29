@@ -75,6 +75,8 @@ class Ui_MainWindow(object):
         self.btn_return.clicked.connect(self.btn_return_clicked)
         self.txt_search.textChanged.connect(self.filterClicked)
         self.selected_product = None
+        self.btn_evaluate.setDisabled(True)
+        self.btn_reset.setDisabled(True)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -102,7 +104,14 @@ class Ui_MainWindow(object):
 
     def list_item_event(self, item):
         self.selected_product = item.text()
-        self.selected_productId = item.data(1)
+        self.selected_productId = item.data(3)
+        self.isEvaluated_product = item.data(4)
+        if self.isEvaluated_product:
+            self.btn_evaluate.setDisabled(True)
+            self.btn_reset.setEnabled(True)
+        else:
+            self.btn_evaluate.setEnabled(True)
+            self.btn_reset.setDisabled(True)
 
     def filterClicked(self):
         filter_text = str(self.txt_search.text()).lower()
@@ -125,17 +134,22 @@ class Ui_MainWindow(object):
     def reset_record(self, id):
         from windows.database_util import DatabaseConnect
         db = DatabaseConnect()
-        db.delete_evaluation(product_id=id)
+        deleted = db.delete_evaluation(product_id=id)
+        if deleted:
+            QMessageBox.about(QMessageBox(self.temp_window), "Info", "Successfully reset the evaluation of the product !!!")
+            self.temp_window.show()
 
     def products_list_view(self):
         db = DatabaseConnect()
-        self.products_list, self.productId_list = db.get_products()
+        self.products_list, self.productId_list, self.isEvaluated_list = db.get_products(evaluate=True)
         self.listWidget = QListWidget()
+
         index =0
         for item in self.productId_list:
             listitem = QListWidgetItem()
-            listitem.setData(1, item)
             listitem.setText(self.products_list[index])
+            listitem.setData(3, item)
+            listitem.setData(4, self.isEvaluated_list[index])
             index += 1
             self.listWidget.addItem(listitem)
         self.scrollArea.setWidget(self.listWidget)
@@ -148,4 +162,3 @@ if __name__ == "__main__":
     ui = Ui_MainWindow(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

@@ -242,16 +242,17 @@ class Ui_MainWindow(object):
                     for option in quesbox.children()[1:]:
                         if option.isChecked():
                             answer = int(option.text())
-                            print("question::", question, "\nAnswer", answer, "\n Dimension", dimension)
+                            print("question::", question, "\nAnswer", answer, "\nDimension", dimension)
                             self.save_answers(question, answer, dimension)
 
     def save_answers(self, question, answer, dimension):
         from windows.database_util import DatabaseConnect
         conn = DatabaseConnect()
-        answer_id = conn.save_answers(answer=answer, question=question, dimension=dimension)
-        is_executed = conn.map_evaluation_answer(self.evaluation_id, answer_id)
-        if is_executed:
-            print("Executed Successfully !!!!")
+        saved = conn.save_answers(answer=answer, question=question, dimension=dimension,
+                                  evaluation_id=self.evaluation_id)
+
+        if saved:
+            print("Answer saved Successfully !!!!")
 
     def create_evaluation(self, attachment_one, attachment_two):
         from windows.database_util import DatabaseConnect
