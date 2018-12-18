@@ -12,7 +12,8 @@ class ProductModulesWindow(QMainWindow):
 class Ui_ProductModulesWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(622, 412)
+        MainWindow.setFixedHeight(450)
+        MainWindow.setFixedWidth(600)
         self.temp_window =MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -86,7 +87,7 @@ class Ui_ProductModulesWindow(object):
         self.evaluation_window.show()
 
     def btn_time_series_clicked(self):
-        from  windows.time_series_module import TimeSeriesWindow
+        from  windows.timeseries_module import TimeSeriesWindow
         self.timeseries_window = TimeSeriesWindow(parent=self.temp_window)
         self.timeseries_window.show()
 
@@ -106,11 +107,11 @@ class Ui_ProductModulesWindow(object):
         self.prediction_window.show()
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     MainWindow = QtWidgets.QMainWindow()
-#     ui = Ui_ProductModulesWindow(MainWindow)
-#     MainWindow.show()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_ProductModulesWindow(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
 

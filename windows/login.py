@@ -1,11 +1,13 @@
-from PyQt5 import QtCore, QtGui, QtWidgets, QtSql
-from PyQt5.QtWidgets import QMessageBox, QLineEdit
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtWidgets import QLineEdit
 
 
 class Ui_LoginWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(614, 417)
+        # MainWindow.resize(614, 417)
+        MainWindow.setFixedHeight(450)
+        MainWindow.setFixedWidth(600)
         self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -64,12 +66,12 @@ class Ui_LoginWindow(object):
             self.temp_window.hide()
 
     def auth_user(self, un, password):
-        from windows.database_util import DatabaseConnect
+        from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         return db.auth_user(un, password)
 
     def get_users(self):
-        from windows.database_util import DatabaseConnect
+        from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         user_list = db.get_users()
         return user_list

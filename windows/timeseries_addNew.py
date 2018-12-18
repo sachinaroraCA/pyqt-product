@@ -1,12 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'ui_collection/timeseries_addNew.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 FILE_TYPE = ['1', '2']  # Constant list containing available type of FILES to select in timeseries module
 ANALYSE_TYPE = ['A', 'B', 'C']   # Constant list containing available type of ANALYSIS to select in timeseries module
@@ -16,6 +8,8 @@ class TimeSeriesAddNewWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(TimeSeriesAddNewWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Time Series:Add new")
+        self.parent_win = parent
+        self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
         self.ui = Ui_MainWindow(self)
 
 
@@ -26,7 +20,8 @@ class Ui_MainWindow(object):
         :param MainWindow: Parent class of the current class
         """
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(644, 460)
+        MainWindow.setFixedHeight(460)
+        MainWindow.setFixedWidth(644)
         self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -65,11 +60,11 @@ class Ui_MainWindow(object):
         self.lbl_name_5 = QtWidgets.QLabel(self.groupBox_verification)
         self.lbl_name_5.setGeometry(QtCore.QRect(10, 60, 81, 17))
         self.lbl_name_5.setObjectName("lbl_name_5")
-        self.txt_starttime = QtWidgets.QTimeEdit(self.groupBox_verification)
+        self.txt_starttime = QtWidgets.QLineEdit(self.groupBox_verification)
         self.txt_starttime.setGeometry(QtCore.QRect(100, 30, 171, 26))
         self.txt_starttime.setReadOnly(True)
         self.txt_starttime.setObjectName("txt_starttime")
-        self.txt_endtime = QtWidgets.QTimeEdit(self.groupBox_verification)
+        self.txt_endtime = QtWidgets.QLineEdit(self.groupBox_verification)
         self.txt_endtime.setGeometry(QtCore.QRect(390, 30, 171, 26))
         self.txt_endtime.setReadOnly(True)
         self.txt_endtime.setObjectName("txt_endtime")
@@ -140,11 +135,28 @@ class Ui_MainWindow(object):
         self.btn_saveAndReturn.setText(_translate("MainWindow", "Save and Return"))
 
     def btn_load_file_clicked(self):
+        """
+                                    LOAD SOURCE FILE AND CALCULATE RELATED FIELDS
+        """
         file_dailog = QtWidgets.QFileDialog(self.temp_window)
         file_path = file_dailog.getOpenFileName(self.temp_window, filter="Docs (*.csv *.xls)")[0]
-        print(file_path)
+        from utils.path_utils import copy_file
+        import pandas as pd
+
+        df = pd.read_excel(file_path, header=None, usecols=[0, 1])
+        empty_data = 0
+        for time, data in df.get_values():
+            if pd.isnull(data):
+                empty_data += 1
+        self.txt_emptydata.setText(str(empty_data))
+        self.txt_seriesdata.setText(str(df.__len__() - empty_data))
+        self.txt_starttime.setText(str(df[0].min()))
+        self.txt_endtime.setText(str(df[0].max()))
+        self.source_file = copy_file(source = file_path, dest="source_file")
+
 
     def btn_back_clicked(self):
+        self.temp_window.parent_win.show()
         self.temp_window.hide()
 
     def btn_addanother_clicked(self):
@@ -156,14 +168,19 @@ class Ui_MainWindow(object):
         self.btn_back_clicked()
 
     def save_timeseries(self):
-        from windows.database_util import DatabaseConnect
+        """
+                                                    CREATE NEW TIME_SERIES
+        :return:
+        """
+        from utils.database_utils import DatabaseConnect
+        from utils.time_utils import unix_time_millis
         db = DatabaseConnect()
         analyse_type = self.combo_analysetype.currentText()
         name = self.txt_name.text()
-        start_time = 34  # self.txt_starttime.text()
-        end_time = 67  # self.txt_endtime.text()
-        series_data = 23456789  # int(self.txt_seriesdata.text())
-        empty_data = 3456789  # int(self.txt_emptydata.text())
+        start_time = unix_time_millis(self.txt_starttime.text())
+        end_time = unix_time_millis(self.txt_endtime.text())
+        series_data = self.txt_seriesdata.text()
+        empty_data = self.txt_emptydata.text()
         file_type = self.combo_filetype.currentText()
         memo = self.txt_memo.toPlainText()
 
@@ -171,21 +188,26 @@ class Ui_MainWindow(object):
             id = db.update_timeseries(product_id=self.selected_productId, timeseries_id=self.selected_timeseriesId,
                                       analyse_type=analyse_type, description=memo, empty_data=empty_data,
                                       end_time=end_time, file_type=file_type, name=name, series_data=series_data,
-                                      start_time=start_time)
+                                      start_time=start_time, source_file=self.source_file)
         else:
             id = db.save_timeseries(analyse_type=analyse_type, description=memo, empty_data=empty_data, end_time=end_time,
-                                    file_type=file_type, name=name, series_data=series_data, start_time=start_time,)
+                                    file_type=file_type, name=name, series_data=series_data, start_time=start_time,
+                                    source_file=self.source_file)
         if id:
+            self.temp_window.parent_win.ui.timeseries_list_view()
             QtWidgets.QMessageBox.about(self.temp_window, "Info", "Record Saved Successfully !!!")
 
     def clear_window(self):
+        """
+                                CLEAR ALL THE FIELDS VALUES FROM TIME_SERIES WINDOW
+        """
         self.txt_memo.clear()
         self.combo_filetype.setCurrentText(FILE_TYPE[0])
         self.combo_analysetype.setCurrentText(ANALYSE_TYPE[0])
         self.txt_emptydata.clear()
         self.txt_seriesdata.clear()
-        # self.txt_endtime.setTime()
-        # self.txt_starttime.clear()
+        self.txt_endtime.clear()
+        self.txt_starttime.clear()
         self.txt_name.clear()
 
 

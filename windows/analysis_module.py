@@ -1,12 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'ui_collection/analysis_module.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 
 class AnalysisWindow(QtWidgets.QMainWindow):
@@ -19,7 +11,9 @@ class AnalysisWindow(QtWidgets.QMainWindow):
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(615, 439)
+        MainWindow.setFixedHeight(450)
+        MainWindow.setFixedWidth(600)
+        self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.lbl_timeseries = QtWidgets.QLabel(self.centralwidget)
@@ -45,9 +39,9 @@ class Ui_MainWindow(object):
         self.btn_export = QtWidgets.QPushButton(self.groupBox_timeseries)
         self.btn_export.setGeometry(QtCore.QRect(20, 70, 121, 25))
         self.btn_export.setObjectName("btn_export")
-        self.btn_return_2 = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_return_2.setGeometry(QtCore.QRect(20, 110, 121, 25))
-        self.btn_return_2.setObjectName("btn_return_2")
+        self.btn_return = QtWidgets.QPushButton(self.groupBox_timeseries)
+        self.btn_return.setGeometry(QtCore.QRect(20, 110, 121, 25))
+        self.btn_return.setObjectName("btn_return_2")
         self.txt_timeseries = QtWidgets.QLineEdit(self.centralwidget)
         self.txt_timeseries.setGeometry(QtCore.QRect(30, 30, 329, 25))
         self.txt_timeseries.setObjectName("txt_timeseries")
@@ -56,36 +50,11 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setElideMode(QtCore.Qt.ElideNone)
         self.tabWidget.setObjectName("tabWidget")
-        self.tab_index1 = QtWidgets.QWidget()
-        self.tab_index1.setObjectName("tab_index1")
-        self.tabWidget.addTab(self.tab_index1, "")
-        self.tab_index2 = QtWidgets.QWidget()
-        self.tab_index2.setObjectName("tab_index2")
-        self.tabWidget.addTab(self.tab_index2, "")
-        self.tab_index3 = QtWidgets.QWidget()
-        self.tab_index3.setObjectName("tab_index3")
-        self.tabWidget.addTab(self.tab_index3, "")
-        self.tab_index4 = QtWidgets.QWidget()
-        self.tab_index4.setObjectName("tab_index4")
-        self.tabWidget.addTab(self.tab_index4, "")
-        self.tab_index5 = QtWidgets.QWidget()
-        self.tab_index5.setObjectName("tab_index5")
-        self.tabWidget.addTab(self.tab_index5, "")
-        self.tab_index6 = QtWidgets.QWidget()
-        self.tab_index6.setObjectName("tab_index6")
-        self.tabWidget.addTab(self.tab_index6, "")
-        self.tab_index7 = QtWidgets.QWidget()
-        self.tab_index7.setObjectName("tab_index7")
-        self.tabWidget.addTab(self.tab_index7, "")
-        self.tab_index8 = QtWidgets.QWidget()
-        self.tab_index8.setObjectName("tab_index8")
-        self.tabWidget.addTab(self.tab_index8, "")
-        self.tab_index9 = QtWidgets.QWidget()
-        self.tab_index9.setObjectName("tab_index9")
-        self.tabWidget.addTab(self.tab_index9, "")
-        self.tab_index10 = QtWidgets.QWidget()
-        self.tab_index10.setObjectName("tab_index10")
-        self.tabWidget.addTab(self.tab_index10, "")
+        for index in range(1, 11):
+            self.tab_index = QtWidgets.QWidget()
+            self.tab_index.setObjectName("tab_index"+str(index))
+            self.tabWidget.addTab(self.tab_index, "index"+str(index))
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
@@ -96,6 +65,9 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.timeseries_list_view()
+        self.txt_timeseries.textChanged.connect(self.timeseriesfilterClicked)
+        self.btn_export.clicked.connect(self.btn_export_clicked)
+        self.btn_return.clicked.connect(self.btn_return_clicked)
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -107,25 +79,32 @@ class Ui_MainWindow(object):
         self.lbl_timeseries.setText(_translate("MainWindow", "Time Series :"))
         self.btn_analyse.setText(_translate("MainWindow", "Analyse"))
         self.btn_export.setText(_translate("MainWindow", "Export"))
-        self.btn_return_2.setText(_translate("MainWindow", "Return"))
+        self.btn_return.setText(_translate("MainWindow", "Return"))
         self.txt_timeseries.setPlaceholderText(_translate("MainWindow", " Search"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index1), _translate("MainWindow", "index1"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index2), _translate("MainWindow", "index2"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index3), _translate("MainWindow", "index3"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index4), _translate("MainWindow", "index4"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index5), _translate("MainWindow", "index5"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index6), _translate("MainWindow", "index6"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index7), _translate("MainWindow", "index7"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index8), _translate("MainWindow", "index8"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index9), _translate("MainWindow", "index9"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_index10), _translate("MainWindow", "index10"))
 
+
+    def btn_export_clicked(self):
+        pass
+
+    def btn_return_clicked(self):
+        self.temp_window.hide()
+
+    def createGraph(self):
+        import pyqtgraph as pg
+        win = pg.plot()
+        win.setWindowTitle('PyQt graph BarGraphItem')
+        # create bar chart
+        bg1 = pg.BarGraphItem(x=[1, 2, 3], height=[20, 90, 10], width=0.8, brush='r')
+        win.addItem(bg1)
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+                                                Time-Series PART
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def timeseries_list_view(self):
-        from windows.database_util import DatabaseConnect
+        from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         self.timeseries_list, self.timeseriesId_list = db.get_timeserieses()
         self.timeseries_listWidget = QtWidgets.QListWidget()
-
         index = 0
         for item in self.timeseriesId_list:
             listitem = QtWidgets.QListWidgetItem()
@@ -140,6 +119,20 @@ class Ui_MainWindow(object):
         self.selected_timeseries = item.text()
         self.selected_timeseriesId = item.data(1)
         print(self.selected_timeseries, self.selected_timeseriesId)
+
+    def timeseriesfilterClicked(self):
+        filter_text = str(self.txt_timeseries.text()).lower()
+        self.timeseries_listWidget.clear()
+        index = 0
+        for item in self.timeseries_list:
+            if item.lower().startswith(filter_text.lower()):
+                listitem = QtWidgets.QListWidgetItem()
+                listitem.setText(item)
+                listitem.setData(1, self.timeseriesId_list[index])
+                self.timeseries_listWidget.addItem(listitem)
+            index += 1
+        self.scrollArea_timeseries.setWidget(self.timeseries_listWidget)
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 if __name__ == "__main__":

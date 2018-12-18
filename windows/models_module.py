@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
 
@@ -6,13 +6,15 @@ class ModelWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(ModelWindow, self).__init__(parent)
         self.setWindowTitle("Financial model Analysis Tool - Model")
+        self.parent_window = parent
         self.ui = Ui_MainWindow(self)
 
 
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(615, 439)
+        MainWindow.setFixedHeight(450)
+        MainWindow.setFixedWidth(600)
         self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -37,7 +39,7 @@ class Ui_MainWindow(object):
         self.btn_modify.setObjectName("btn_modify")
         self.scrollArea_models = QtWidgets.QScrollArea(self.centralwidget)
         self.scrollArea_models.setGeometry(QtCore.QRect(50, 90, 329, 101))
-        self.scrollArea_models.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.scrollArea_models.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_models.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_models.setWidgetResizable(True)
         self.scrollArea_models.setObjectName("scrollArea_models")
@@ -53,8 +55,8 @@ class Ui_MainWindow(object):
         self.groupBox_overview.setObjectName("groupBox_overview")
         self.txt_overview = QtWidgets.QTextEdit(self.groupBox_overview)
         self.txt_overview.setGeometry(QtCore.QRect(10, 30, 461, 101))
-        self.txt_overview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.txt_overview.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.txt_overview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.txt_overview.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.txt_overview.setReadOnly(True)
         self.txt_overview.setObjectName("txt_overview")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -65,6 +67,8 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+
+        self.selected_modelId = None
 
         self.models_list_view()
         self.btn_addNew.clicked.connect(self.btn_addNew_clicked)
@@ -91,105 +95,131 @@ class Ui_MainWindow(object):
         from windows.models_addNew import ModelAddNewWindow
         self.model_addnew_win = ModelAddNewWindow(parent=self.temp_window)
         self.model_addnew_win.show()
+        self.temp_window.hide()
 
     def btn_delete_clicked(self):
-        self.delete_model_byId(self.selected_modelId)
-        # self.modelId_list.remove(model_code)
-        self.models_list.remove(self.selected_model)
-        self.modelId_list.remove(self.selected_modelId)
-        self.models_list_view()
-        self.txt_overview.clear()
+        if self.selected_modelId:
+            deleted = self.delete_model_byId(self.selected_modelId)
+            if deleted[0]:
+                self.models_list.remove(self.selected_model)
+                self.modelId_list.remove(self.selected_modelId)
+                self.models_list_view()
+                self.txt_overview.clear()
+            else:
+                QMessageBox.about(self.temp_window, "Warning", "Database Error !!!")
 
     def btn_modify_clicked(self):
-        result = [x.row() for x in self.listWidget.selectedIndexes()]
-        if result:
-            model_detail_dict = self.model_detail_dict
-            from windows.models_addNew import ModelAddNewWindow
-            self.modify_win = ModelAddNewWindow(parent=self.temp_window)
-            self.modify_win.ui.model_id = self.model_detail_dict["id"]
-            if "name" in model_detail_dict:
-                self.modify_win.ui.txt_name.setText(model_detail_dict["name"])
-            if "code" in model_detail_dict:
-                self.modify_win.ui.txt_code.setText(model_detail_dict["code"])
-            if "categorya" in model_detail_dict:
-                self.modify_win.ui.combo_category_A.setCurrentText(model_detail_dict["categorya"])
-            if "categoryb" in model_detail_dict:
-                self.modify_win.ui.combo_category_B.setCurrentText(model_detail_dict["categoryb"])
-            if "info1" in model_detail_dict:
-                self.modify_win.ui.txt_info1.setText(model_detail_dict["info1"])
-            if "info2" in model_detail_dict:
-                self.modify_win.ui.txt_info_2.setText(model_detail_dict["info2"])
-            if "info3" in model_detail_dict:
-                self.modify_win.ui.txt_info_3.setText(model_detail_dict["info3"])
-            if "info4" in model_detail_dict:
-                self.modify_win.ui.txt_info_4.setText(model_detail_dict["info4"])
-            if "info5" in model_detail_dict:
-                self.modify_win.ui.txt_info_5.setText(model_detail_dict["info5"])
-            if "info6" in model_detail_dict:
-                self.modify_win.ui.txt_info_6.setText(model_detail_dict["info6"])
-            if "info7" in model_detail_dict:
-                self.modify_win.ui.txt_info_7.setPlainText(model_detail_dict["info7"])
-            self.modify_win.setWindowTitle("Financial Financial model Analysis Tool - model:Update")
-            self.modify_win.ui.btn_addAnother.hide()
-            self.modify_win.ui.btn_saveAndReturn.clicked.disconnect(self.modify_win.ui.btn_saveAndReturn_clicked)
-            self.modify_win.ui.btn_saveAndReturn.clicked.connect(self.modify_win.ui.btn_saveAndReturnUpdate_clicked)
+        if self.selected_modelId:
+            result = [x.row() for x in self.listWidget.selectedIndexes()]
+            if result:
+                model_detail_dict = self.model_detail_dict
+                from windows.models_addNew import ModelAddNewWindow
+                self.modify_win = ModelAddNewWindow(parent=self.temp_window)
+                self.modify_win.ui.model_id = self.model_detail_dict["id"]
+                if "name" in model_detail_dict:
+                    self.modify_win.ui.txt_name.setText(model_detail_dict["name"])
+                if "type" in model_detail_dict:
+                    self.modify_win.ui.comboBox_type.setCurrentText(model_detail_dict["type"])
+                if "param1" in model_detail_dict:
+                    self.modify_win.ui.txt_param1.setText(model_detail_dict["param1"])
+                if "param2" in model_detail_dict:
+                    self.modify_win.ui.txt_param2.setText(model_detail_dict["param2"])
+                if "param3" in model_detail_dict:
+                    self.modify_win.ui.txt_param3.setText(model_detail_dict["param3"])
+                if "description" in model_detail_dict:
+                    self.modify_win.ui.txt_memo.setPlainText(model_detail_dict["description"])
+                if "me1" in model_detail_dict:
+                    self.modify_win.ui.txt_me1.setText(str(model_detail_dict["me1"]))
+                if "me2" in model_detail_dict:
+                    self.modify_win.ui.txt_me2.setText(str(model_detail_dict["me2"]))
+                if "me3" in model_detail_dict:
+                    self.modify_win.ui.txt_me3.setText(str(model_detail_dict["me3"]))
+                if "me4" in model_detail_dict:
+                    self.modify_win.ui.txt_me4.setText(str(model_detail_dict["me4"]))
+                if "me5" in model_detail_dict:
+                    self.modify_win.ui.txt_me5.setText(str(model_detail_dict["me5"]))
+                if "me6" in model_detail_dict:
+                    self.modify_win.ui.txt_me6.setText(str(model_detail_dict["me6"]))
+                if "me7" in model_detail_dict:
+                    self.modify_win.ui.txt_me7.setText(str(model_detail_dict["me7"]))
+                if "me8" in model_detail_dict:
+                    self.modify_win.ui.txt_me8.setText(str(model_detail_dict["me8"]))
+                if "me9" in model_detail_dict:
+                    self.modify_win.ui.txt_me9.setText(str(model_detail_dict["me9"]))
+                if "me10" in model_detail_dict:
+                    self.modify_win.ui.txt_me10.setText(str(model_detail_dict["me10"]))
+                if "me11" in model_detail_dict:
+                    self.modify_win.ui.txt_me11.setText(str(model_detail_dict["me11"]))
+                if "me12" in model_detail_dict:
+                    self.modify_win.ui.txt_me12.setText(str(model_detail_dict["me12"]))
+                if "me13" in model_detail_dict:
+                    self.modify_win.ui.txt_me13.setText(str(model_detail_dict["me13"]))
+                if "me14" in model_detail_dict:
+                    self.modify_win.ui.txt_me14.setText(str(model_detail_dict["me14"]))
+                if "me15" in model_detail_dict:
+                    self.modify_win.ui.txt_me15.setText(str(model_detail_dict["me15"]))
+                if "me16" in model_detail_dict:
+                    self.modify_win.ui.txt_me16.setText(str(model_detail_dict["me16"]))
+                if "time_series_ID" in model_detail_dict:
+                    time_series_ID = model_detail_dict["time_series_ID"]
+                    self.modify_win.ui.select_timeseries_byId(time_series_ID)
+                self.modify_win.setWindowTitle("Financial Financial model Analysis Tool - model:Update")
+                self.modify_win.ui.selected_modelId = self.selected_modelId
+                self.modify_win.ui.btn_add_another.hide()
+                self.modify_win.ui.btn_save_and_return.clicked.disconnect(self.modify_win.ui.btn_saveAndReturn_clicked)
+                self.modify_win.ui.btn_save_and_return.clicked.connect(self.modify_win.ui.btn_saveAndReturnUpdate_clicked)
 
-            self.modify_win.show()
+                self.modify_win.show()
+                self.temp_window.hide()
 
     def btn_export_clicked(self):
-        file_dailog = QtWidgets.QFileDialog()
-        default_file_extension = '.csv'
+        if self.selected_modelId:
+            file_dailog = QtWidgets.QFileDialog()
+            default_file_extension = '.csv'
 
-        name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-        if default_file_extension not in name:
-            name += default_file_extension
+            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
+            if default_file_extension not in name:
+                name += default_file_extension
 
-        model_info = self.model_detail_dict
-        print(model_info)
-        keys = list(model_info.keys())
-        import csv
-        with open(name, 'w+') as output_file:
-            dict_writer = csv.DictWriter(output_file, keys)
-            dict_writer.writeheader()
-            dict_writer.writerow(model_info)
+            model_info = self.model_detail_dict
+            print(model_info)
+            keys = list(model_info.keys())
+            import csv
+            with open(name, 'w+') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerow(model_info)
 
-        output_file.close()
+            output_file.close()
 
     def search_models(self):
         filter_text = self.txt_search.text().lower()
-        # filtered_list = []
-        # for item in self.models_list:
-        #     if filter_text in item.lower():
-        #         filtered_list.append(item)
-
-        self.filtered_list = self.listWidget.findItems(filter_text, QtCore.Qt.MatchStartsWith)
-        new_list_widget = QtWidgets.QListWidget(self.scrollArea)
-
+        self.listWidget.clear()
         index = 0
-        for item in self.filtered_list:
-            self.listWidget.removeItemWidget(item)
-            # listitem = QListWidgetItem()
-            # listitem.setText(item.text())
-            # listitem.setData(1, item.data(1))
-            # index += 1
-            # new_list_widget.addItem(listitem)
-        # # listWidget.itemClicked.connect(self.list_item_event)
+        for item in self.models_list:
+            if item.lower().startswith(filter_text.lower()):
+                listitem = QListWidgetItem()
+                listitem.setText(item)
+                listitem.setData(1, self.modelId_list[index])
+                self.listWidget.addItem(listitem)
+            index += 1
+        self.listWidget.itemClicked.connect(self.list_item_event)
         self.scrollArea_models.setWidget(self.listWidget)
 
     def delete_model_byId(self, id):
-        from windows.database_util import DatabaseConnect
+        from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         result = db.delete_model(id)
         return result
 
     def get_models(self):
-        from windows.database_util import DatabaseConnect
+        from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         self.models_list, self.modelId_list = db.get_models()
         return self.models_list
 
     def get_model_details(self, id):
-        from windows.database_util import DatabaseConnect
+        from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         model_string, self.model_detail_dict = db.get_model_details(id)
         return model_string, self.model_detail_dict
@@ -197,6 +227,8 @@ class Ui_MainWindow(object):
     def models_list_view(self):
         self.listWidget = QListWidget()
         self.get_models()
+        self.txt_overview.clear()
+        self.txt_search.clear()
         index =0
         for item in self.modelId_list:
             listitem = QListWidgetItem()
@@ -221,6 +253,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow(MainWindow)
-    # ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
