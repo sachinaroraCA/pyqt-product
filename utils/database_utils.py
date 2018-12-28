@@ -1,4 +1,3 @@
-from PyQt5 import QtSql
 from PyQt5.QtWidgets import QMessageBox
 import pymysql
 from utils.time_utils import get_current_time, unix_time_millis
@@ -27,20 +26,17 @@ class DatabaseConnect:
         """
         try:
             with self.connection.cursor() as cursor:
-                query = "select username from fpat_user where username = '{username}' and password ="\
+                query = "select username, password from fpat_user where username = '{username}' and password ="\
                         " '{password}';".format(username=un,
                                                 password=password)
                 cursor.execute(query)
-                result = cursor.fetchall()
+                result = cursor.fetchone()
                 cursor.close()
-                if result:
+                if result and result["password"] == password:
                     return True
                 else:
-                    QMessageBox.about(QMessageBox(), "Warning", "Invalid Secret code !!!")
                     return False
         except Exception:
-            print(Exception)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
             return False
 
     def get_users(self):
@@ -61,14 +57,12 @@ class DatabaseConnect:
                 cursor.close()
             return user_list
         except Exception as ex:
-            print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return []
+            return False
     
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                                 PRODUCT MODULE
-    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def get_products(self, evaluate=None):
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    def get_products(self, evaluate=None, window=QMessageBox()):
         """
         # Return all the Products
         :return: List of all the products
@@ -93,8 +87,11 @@ class DatabaseConnect:
                 return product_list, productId_list
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return []
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+            if evaluate:
+                return product_list, productId_list, is_evaluated_list, {}
+            else:
+                return product_list, productId_list
 
     def save_product_record(self, name, code, categorya, categoryb, info1="NULL", info2='NULL', info3='NULL',
                             info4='NULL', info5='NULL', info6='NULL', info7='NULL'):
@@ -136,8 +133,6 @@ class DatabaseConnect:
                 cursor.close()
             return True
         except Exception as ex:
-            print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
             return False
 
     def update_product_record(self, id, name, code, categorya, categoryb, info1="NULL", info2="NULL", info3="NULL",
@@ -181,11 +176,9 @@ class DatabaseConnect:
                 cursor.close()
             return True
         except Exception as ex:
-            print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
             return False
 
-    def get_product_details(self, id):
+    def get_product_details(self, id, window=QMessageBox()):
         """
         # Get all the field values on the basis of "id" of a Product
         :param id:
@@ -204,13 +197,13 @@ class DatabaseConnect:
                 for product_details in result:
                     for key, value in product_details.items():
                         if key not in ['id', 'evaluated', 'created_at', 'evalutions_ID'] and value:
-                            product_info += str(key) + "\t:" + str(value) + "\n"
+                            product_info += str(key).title() + "\t:  " + str(value) + "\n"
                     product_info_dict.update(product_details)
                 cursor.close()
             return product_info, product_info_dict
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return []
 
     def delete_product(self, id):
@@ -228,14 +221,12 @@ class DatabaseConnect:
                 cursor.close()
                 return True
         except Exception as ex:
-            print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
             return False
         
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                             EVALUATION MODULE
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def get_all_questions(self):
+    def get_all_questions(self, window=QMessageBox()):
         """
         # Get all the questions mapped with dimensions in tabs
         :return: List of questions
@@ -249,15 +240,25 @@ class DatabaseConnect:
             return question_list
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return []
 
-    def get_answers_by_evaluation(self, product_id):
+    def get_answers_by_evaluation(self, product_id, window=QMessageBox()):
+        """
+                                        Get all answers of an evaluation of a product
+
+        This function includes following steps:
+        1. Get Evaluation records of a product
+        2. Get all answers_ids in selected evaluation
+        3. Select all answers of the selected evaluation
+
+        :param product_id:
+        :return: answers
+        """
+        answers_ids = []
+        answers = []
         try:
             with self.connection.cursor() as cursor:
-
-                answers_ids = []
-                answers = []
                 # Get Evaluation records of a product
                 if product_id:
                     product_query = "select evalutions_ID from fpat_product where id={id};".format(id=product_id)
@@ -288,16 +289,15 @@ class DatabaseConnect:
 
                     self.connection.commit()
                 cursor.close()
-                return answers
 
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return False
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+        return answers
 
-    def create_evaluation(self, product_id, attachment_one, attachment_two):
+    def create_evaluation(self, product_id, attachment_one, attachment_two, window=QMessageBox()):
         """
-        # Create a new Evaluation of a Product.
+                                            Create a new Evaluation of a Product.
         :param product_id:
         :param attachment_one:
         :param attachment_two:
@@ -334,10 +334,10 @@ class DatabaseConnect:
             return evalution_id
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
-    def save_answers(self, answer, question, dimension, evaluation_id):
+    def save_answers(self, answer, question, dimension, evaluation_id, window=QMessageBox()):
         """
         # Save the answer of the evaluation questions into the database
         :param answer:
@@ -367,14 +367,21 @@ class DatabaseConnect:
 
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
-    def delete_evaluation(self, product_id):
+    def delete_evaluation(self, product_id, window=QMessageBox()):
         """
-        # Reset the evaluation of a product
+                                                Reset the evaluation of a product
+        This function include following steps:
+        1. Get Evaluation records of a product
+        2. Get all answers_ids in selected evaluation
+        3. Delete answer and evaluation mapping
+        4. Delete all answers of current evaluation
+        5. Update Product record to remove evaluation_id
+        6. Delete attachments from evaluation and evaluation record
         :param product_id:
-        :return: Boolean as whether the
+        :return:
         """
         try:
             with self.connection.cursor() as cursor:
@@ -443,19 +450,40 @@ class DatabaseConnect:
 
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
     def remove_file(self, file):
+        """
+                                        Delete a file from the file storage using file_path
+        :param file:
+        :return:
+        """
         import os
         if file and os.path.exists(file):
             os.remove(file)
+            return True
+        else:
+            return False
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                                 TIME SERIES MODULE
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def save_timeseries(self, analyse_type, description, empty_data, end_time, file_type, name, series_data,
-                        start_time, source_file):
+                        start_time, source_file, window=QMessageBox()):
+        """
+                                Create a time-series record in the database
+        :param analyse_type:
+        :param description:
+        :param empty_data:
+        :param end_time:
+        :param file_type:
+        :param name:
+        :param series_data:
+        :param start_time:
+        :param source_file: File path
+        :return:
+        """
         try:
             from datetime import datetime
             with self.connection.cursor() as cursor:
@@ -483,10 +511,15 @@ class DatabaseConnect:
 
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
-    def get_timeserieses(self):
+    def get_timeserieses(self, window=QMessageBox()):
+        """
+                        Get the list of the time-series in the database
+
+        :return: timeseries_list, timeseriesId_list
+        """
         timeseries_list = []
         timeseriesId_list = []
 
@@ -500,13 +533,18 @@ class DatabaseConnect:
                     timeseriesId_list.append(product_details['id'])
                 cursor.close()
 
-            return timeseries_list, timeseriesId_list
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return []
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+
+        return timeseries_list, timeseriesId_list
     
-    def get_timeseries_details(self, timeseries_id):
+    def get_timeseries_details(self, timeseries_id, window=QMessageBox()):
+        """
+                        Get all the field values of a time-series using id
+        :param timeseries_id:
+        :return: dictionary containing all the fields of a time-series
+        """
         timeseries_info_dict = {}
         try:
             with self.connection.cursor() as cursor:
@@ -514,13 +552,12 @@ class DatabaseConnect:
                 cursor.execute(query)
                 timeseries_info_dict.update(cursor.fetchone())
                 cursor.close()
-            return timeseries_info_dict
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return {}
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+        return timeseries_info_dict
 
-    def delete_timeseries(self, id):
+    def delete_timeseries(self, id, window=QMessageBox()):
         """
         # Delete a time series from time series table on the basis of id.
         :param id:
@@ -536,10 +573,10 @@ class DatabaseConnect:
                 return True
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
-    def update_timeseries_productId(self, timeseries_id, product_id):
+    def update_timeseries_productId(self, timeseries_id, product_id, window=QMessageBox()):
         """
                                                 BIND AND UNBIND PRODUCT WITH TIME-SERIES
         :param timeseries_id:
@@ -556,11 +593,11 @@ class DatabaseConnect:
                 return True
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
     def update_timeseries(self, product_id, timeseries_id, analyse_type, description, empty_data, end_time, file_type,
-                          name, series_data, start_time, source_file):
+                          name, series_data, start_time, source_file, window=QMessageBox()):
         """
                                                     UPDATE TIME-SERIES
         :param product_id:
@@ -598,13 +635,13 @@ class DatabaseConnect:
                 return True
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                                 MODEL MODULE
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-    def get_models(self, evaluate=None):
+    def get_models(self, evaluate=None, window=QMessageBox()):
         """
                                         GET LIST OF MODELS FROM DATABASE
         # Return all the models
@@ -622,18 +659,14 @@ class DatabaseConnect:
                     model_list.append(model_details["name"])
                     modelId_list.append(model_details['id'])
                 cursor.close()
-            if evaluate:
-                return model_list, modelId_list
-            else:
-                return model_list, modelId_list
-        except Exception as ex:
-            print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return []
+        except Exception:
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+        return model_list, modelId_list
 
     def save_model_record(self, name, me1, me10, me11, me12, me13, me14, me15, me16,me2, me3, me4, me5, me6, me7, me8,
-                          me9, description, param1, param2, param3, type, time_series_ID):
+                          me9, description, param1, param2, param3, type, time_series_ID, window=QMessageBox()):
         """
+                                    Create a new model
         :param name:
         :param me1:
         :param me10:
@@ -698,12 +731,13 @@ class DatabaseConnect:
             return True
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
     def update_model_record(self, name, me1, me10, me11, me12, me13, me14, me15, me16,me2, me3, me4, me5, me6, me7, me8,
-                            me9, description, param1, param2, param3, type, time_series_ID, model_id):
+                            me9, description, param1, param2, param3, type, time_series_ID, model_id, window=QMessageBox()):
         """
+                                Update a Model
         :param name:
         :param me1:
         :param me10:
@@ -747,10 +781,10 @@ class DatabaseConnect:
             return True
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
+            QMessageBox.about(window, "Warning", "Database Error !!!")
             return False
 
-    def get_model_details(self, id):
+    def get_model_details(self, id, window=QMessageBox()):
         """
         # Get all the field values on the basis of "id" of a model
         :param id:
@@ -770,16 +804,14 @@ class DatabaseConnect:
                 for model_details in result:
                     for key, value in model_details.items():
                         if key not in ['id', 'created_at', 'time_series_ID'] and value:
-                            model_info += str(key) + "\t:" + str(value) + "\n"
+                            model_info += str(key).title() + "\t:  " + str(value) + "\n"
                     model_info_dict.update(model_details)
                 cursor.close()
-            return model_info, model_info_dict
-        except Exception as ex:
-            print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return []
+        except Exception:
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+        return model_info, model_info_dict
 
-    def delete_model(self, id):
+    def delete_model(self, id, window=QMessageBox()):
         """
         # Delete a model from model table on the basis of id.
         :param id:
@@ -794,28 +826,34 @@ class DatabaseConnect:
                 cursor.close()
                 return True, "Deleted successfully !!!"
         except Exception as ex:
-            return False, str(ex)
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+            return False
 
-    def test_def(self, id=1):
-        timeseries_info_dict = {}
+    def get_index_analysis(self, index, analyse_type, window=QMessageBox()):
+        """
+        Get the standard values of sub-indexes for the time-series of given analyse-type
+        :param index: int
+        :param analyse_type: str
+        :return: analysis_dict
+        """
+        analysis_dict = {}
         try:
             with self.connection.cursor() as cursor:
-                query = "select * from fpat_timeseries where id = '{id}'".format(id=id)
+                query = "select sub_index, standard_value from fpat_analysis where analyse_type='" + analyse_type +\
+                        "' AND `index`=" + str(index)
                 cursor.execute(query)
-                timeseries_info_dict.update(cursor.fetchone())
+                query_result = cursor.fetchall()
+                for item in query_result:
+                    analysis_dict[item["sub_index"]] = item["standard_value"]
                 cursor.close()
-            return timeseries_info_dict
         except Exception as ex:
             print(ex)
-            QMessageBox.about(QMessageBox(), "Warning", "Database Error !!!")
-            return {}
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+        return analysis_dict
 
 
 if __name__ == '__main__':
     conn = DatabaseConnect()
-    # dict = conn.get_timeserieses()
-    # print(dict)
-    # conn.get_product_details("exercitation ullamco lab")
-    # conn.get_all_questions()
-    # conn.update_product_record(id=3, name="Aman", code="007",categorya="A", categoryb="B")
-    # print(get_current_time())
+    dict = conn.get_index_analysis(index=1,
+                                   analyse_type="B")
+    print(dict)

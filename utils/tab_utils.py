@@ -1,7 +1,13 @@
 from PyQt5 import QtWidgets, QtCore
+"""
+            Classes to create the Tab widget having vertically aligned tabs with horizontal label text
+"""
 
 
 class TabBar(QtWidgets.QTabBar):
+    """
+                    Create Tab bar
+    """
     def tabSizeHint(self, index):
         s = QtWidgets.QTabBar.tabSizeHint(self, index)
         s.transpose()
@@ -31,6 +37,9 @@ class TabBar(QtWidgets.QTabBar):
 
 
 class TabWidget(QtWidgets.QTabWidget):
+    """
+                    Create Tab Widget
+    """
     def __init__(self, *args, **kwargs):
         QtWidgets.QTabWidget.__init__(self, *args, **kwargs)
         self.setTabBar(TabBar(self))

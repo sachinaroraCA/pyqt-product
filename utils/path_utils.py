@@ -1,4 +1,6 @@
 import os
+
+# Directory paths
 UTIL_DIRECTORY = os.getcwd()
 PROJECT_DIRECTORY = os.path.abspath(os.pardir)
 FILES_DIRECTORY = PROJECT_DIRECTORY + '/attachment_files'
@@ -7,6 +9,11 @@ OTHER_DIRECTORY = PROJECT_DIRECTORY + '/other_files'
 
 
 def create_random_string(size=30):
+    """
+                    Generate a random string of size 30 by default
+    :param size:
+    :return:
+    """
     import random
     import string
     rand_str = lambda n: ''.join([random.choice(string.ascii_lowercase) for i in range(n)])
@@ -14,6 +21,12 @@ def create_random_string(size=30):
 
 
 def copy_file(source, dest):
+    """
+                    Copy a file from the source path to destination path
+    :param source: Path of a source file
+    :param dest: Path of the destination file
+    :return: Path of the copied file
+    """
     import shutil
     file = source.split("/")[-1]
     file_name = file.split(".")[0]
