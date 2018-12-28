@@ -11,9 +11,12 @@ class AnalysisWindow(QtWidgets.QMainWindow):
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(450)
+        MainWindow.setFixedHeight(550)
         MainWindow.setFixedWidth(600)
         self.temp_window = MainWindow
+        self.selected_timeseriesId = None
+        self.layout = {}
+        self.index_values_layout = {}
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.lbl_timeseries = QtWidgets.QLabel(self.centralwidget)
@@ -21,7 +24,7 @@ class Ui_MainWindow(object):
         self.lbl_timeseries.setObjectName("lbl_timeseries")
         self.scrollArea_timeseries = QtWidgets.QScrollArea(self.centralwidget)
         self.scrollArea_timeseries.setGeometry(QtCore.QRect(30, 60, 329, 101))
-        self.scrollArea_timeseries.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.scrollArea_timeseries.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_timeseries.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_timeseries.setWidgetResizable(True)
         self.scrollArea_timeseries.setObjectName("scrollArea_timeseries")
@@ -33,6 +36,7 @@ class Ui_MainWindow(object):
         self.groupBox_timeseries.setGeometry(QtCore.QRect(400, 10, 161, 151))
         self.groupBox_timeseries.setTitle("")
         self.groupBox_timeseries.setObjectName("groupBox_timeseries")
+
         self.btn_analyse = QtWidgets.QPushButton(self.groupBox_timeseries)
         self.btn_analyse.setGeometry(QtCore.QRect(20, 30, 121, 25))
         self.btn_analyse.setObjectName("btn_analyse")
@@ -46,7 +50,7 @@ class Ui_MainWindow(object):
         self.txt_timeseries.setGeometry(QtCore.QRect(30, 30, 329, 25))
         self.txt_timeseries.setObjectName("txt_timeseries")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(30, 170, 531, 221))
+        self.tabWidget.setGeometry(QtCore.QRect(30, 170, 531, 350))
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setElideMode(QtCore.Qt.ElideNone)
         self.tabWidget.setObjectName("tabWidget")
@@ -66,11 +70,14 @@ class Ui_MainWindow(object):
 
         self.timeseries_list_view()
         self.txt_timeseries.textChanged.connect(self.timeseriesfilterClicked)
+        self.btn_analyse.clicked.connect(self.btn_analyse_clicked)
         self.btn_export.clicked.connect(self.btn_export_clicked)
         self.btn_return.clicked.connect(self.btn_return_clicked)
-
+        self.btn_analyse.setDisabled(True)
+        self.btn_export.setDisabled(True)
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
+        self.show_graph(show=False)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -82,20 +89,136 @@ class Ui_MainWindow(object):
         self.btn_return.setText(_translate("MainWindow", "Return"))
         self.txt_timeseries.setPlaceholderText(_translate("MainWindow", " Search"))
 
+    def btn_analyse_clicked(self):
+        from utils.database_utils import DatabaseConnect
+        db = DatabaseConnect()
+        self.show_graph(show=True)
+        self.time_series_data = db.get_timeseries_details(timeseries_id= self.selected_timeseriesId,
+                                                          window=self.temp_window)
+        self.analysed_data = []
+        for index in range(1, 11):
+            self.create_graph(source_file=self.time_series_data["source_file"],
+                              time_series_type=self.time_series_data["file_type"],
+                              index=index)
 
     def btn_export_clicked(self):
-        pass
+        try:
+            import pandas as pd
+            if self.analysed_data:
+
+                file_dailog = QtWidgets.QFileDialog()
+                default_file_extension = '.csv'
+
+                name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
+                if name:
+                    if default_file_extension not in name:
+                        name += default_file_extension
+
+                    df = pd.DataFrame(self.analysed_data)
+                    df.to_csv(name, sep='\t', encoding='utf-8', index=False,
+                              columns=['index', "sub_index", "standard_value", "analysed_value"])
+                    QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
+        except Exception as ex:
+            QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
 
     def btn_return_clicked(self):
         self.temp_window.hide()
 
-    def createGraph(self):
+    def create_graph(self, source_file, time_series_type, index):
+        from utils.algo_utils import analyse_module
+
+        # Todo: algorithm is to be write for 2-9 index
+        analysis_data = analyse_module(source_file=source_file,
+                                       time_series_type=time_series_type,
+                                       index=index
+                                       )
         import pyqtgraph as pg
-        win = pg.plot()
-        win.setWindowTitle('PyQt graph BarGraphItem')
-        # create bar chart
-        bg1 = pg.BarGraphItem(x=[1, 2, 3], height=[20, 90, 10], width=0.8, brush='r')
-        win.addItem(bg1)
+        import numpy as np
+        standard_values = [float(value) for value in list(self.get_analysis_data(index, self.time_series_data["analyse_type"]).values())]
+        x = np.arange(1, 13)
+        y = np.array([list(analysis_data.values()),
+                      standard_values,
+                      ])
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
+        plot_widget = pg.PlotWidget()
+
+        colors = ['r', 'b' ]
+        for i in range(2):
+            curve = pg.PlotCurveItem(x, y[i], pen=colors[i])
+            plot_widget.addItem(curve)
+
+        tab_list = self.tabWidget.children()[0].children()
+        for tab in tab_list:
+            tab_name = tab.objectName()
+
+            if tab_name == "tab_index"+str(index):
+
+                if tab_name not in self.layout:
+                    self.layout[tab_name] = QtWidgets.QHBoxLayout()
+
+                if tab_name not in self.index_values_layout:
+                    self.index_values_layout[tab_name] = QtWidgets.QVBoxLayout()
+
+                if self.layout[tab_name]:
+                    for i in reversed(range(self.layout[tab_name].count())):
+                        if self.layout[tab_name].itemAt(i).widget() is not None:
+                            self.layout[tab_name].itemAt(i).widget().setParent(None)
+
+                self.deleteItemsOfLayout(self.layout[tab_name])
+
+                for sub_index in range(12):
+                    binding_layout = QtWidgets.QHBoxLayout()
+                    lbl_index = QtWidgets.QLabel()
+                    lbl_index.setText("index" + str(index) + "-" + str(sub_index + 1)+":")
+                    lbl_index.setMinimumWidth(70)
+
+                    binding_layout.addWidget(lbl_index)
+                    txt_index = QtWidgets.QLineEdit()
+                    txt_index.setMinimumWidth(90)
+                    txt_index.setReadOnly(True)
+                    value = analysis_data[sub_index + 1]
+                    txt_index.setText(str(value))
+                    binding_layout.addWidget(txt_index)
+                    self.analysed_data.append({"index": index,
+                                               "sub_index": sub_index+1,
+                                               "analysed_value": analysis_data[sub_index+1],
+                                               "standard_value": standard_values[sub_index]})
+
+                    self.index_values_layout[tab_name].addLayout(binding_layout)
+                self.layout[tab_name].addLayout(self.index_values_layout[tab_name])
+
+                index_title = QtWidgets.QLabel()
+                index_title.setStyleSheet("font: 16pt;color:#605252;")
+                index_title.setText(str("        "+self.selected_timeseries + "-index" + str(index)).title())
+
+                b_layout = QtWidgets.QVBoxLayout()
+                b_layout.addWidget(index_title)
+                b_layout.addWidget(plot_widget)
+
+                from utils.graph_utils import create_graph_indicator
+                create_graph_indicator(b_layout, self.selected_timeseries, True)
+
+                self.layout[tab_name].addLayout(b_layout)
+                tab.setLayout(self.layout[tab_name])
+
+    def get_analysis_data(self, index, analyse_type):
+        from utils.database_utils import DatabaseConnect
+        db = DatabaseConnect()
+        analysis_dict = db.get_index_analysis(index=index,
+                                              analyse_type=analyse_type,
+                                              window=self.temp_window)
+        return analysis_dict
+
+    def deleteItemsOfLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.setParent(None)
+                else:
+                    self.deleteItemsOfLayout(item.layout())
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                                                 Time-Series PART
@@ -103,7 +226,7 @@ class Ui_MainWindow(object):
     def timeseries_list_view(self):
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses()
+        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses(window=self.temp_window)
         self.timeseries_listWidget = QtWidgets.QListWidget()
         index = 0
         for item in self.timeseriesId_list:
@@ -112,13 +235,27 @@ class Ui_MainWindow(object):
             listitem.setData(1, item)
             index += 1
             self.timeseries_listWidget.addItem(listitem)
-        self.timeseries_listWidget.itemClicked.connect(self.timeseries_list_item_event)
+        self.timeseries_listWidget.currentItemChanged.connect(self.timeseries_list_item_event)
         self.scrollArea_timeseries.setWidget(self.timeseries_listWidget)
 
     def timeseries_list_item_event(self, item):
-        self.selected_timeseries = item.text()
-        self.selected_timeseriesId = item.data(1)
-        print(self.selected_timeseries, self.selected_timeseriesId)
+        try:
+            if item:
+                self.selected_timeseries = item.text()
+                self.selected_timeseriesId = item.data(1)
+                self.btn_analyse.setEnabled(True)
+                self.btn_export.setEnabled(True)
+                self.show_graph(show=False)
+        except:
+            pass
+
+    def show_graph(self, show):
+        if not show:
+            self.tabWidget.children()[1].hide()
+            self.tabWidget.children()[0].hide()
+        else:
+            self.tabWidget.children()[1].show()
+            self.tabWidget.children()[0].show()
 
     def timeseriesfilterClicked(self):
         filter_text = str(self.txt_timeseries.text()).lower()
@@ -132,6 +269,7 @@ class Ui_MainWindow(object):
                 self.timeseries_listWidget.addItem(listitem)
             index += 1
         self.scrollArea_timeseries.setWidget(self.timeseries_listWidget)
+
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 

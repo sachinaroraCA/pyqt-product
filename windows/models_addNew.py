@@ -1,11 +1,15 @@
 from PyQt5 import QtCore, QtWidgets
 
+# static data to fill the M1 to M16 values
 MODEL_DATA = {"1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7",
                    "8": "8", "9": "9", "10": "10", "11": "11", "12": "12", "13": "13",
                    "14": "14", "15": "15", "16": "16" }
 
 
 class ModelAddNewWindow(QtWidgets.QMainWindow):
+    """
+                Main class of the Model:Add new module
+    """
     def __init__(self, parent=None):
         super(ModelAddNewWindow, self).__init__(parent)
         self.setWindowTitle("Financial model Analysis Tool - Model")
@@ -15,11 +19,15 @@ class ModelAddNewWindow(QtWidgets.QMainWindow):
 
 
 class Ui_MainWindow(object):
+    """
+                UI class of the Model:Add new module
+    """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedHeight(575)
         MainWindow.setFixedWidth(700)
-        self.win = MainWindow
+        self.temp_window = MainWindow
+        self.selected_timeseriesId = None
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label_title = QtWidgets.QLabel(self.centralwidget)
@@ -225,6 +233,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+                Set the properties of the UI elements
+        :param MainWindow:
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_title.setText(_translate("MainWindow", "Add a new Model : "))
@@ -264,6 +276,10 @@ class Ui_MainWindow(object):
         self.btn_save_and_return.setText(_translate("MainWindow", "Save and Return"))
 
     def set_events(self):
+        """
+                    set all the actions on all the elements of the Window UI
+        :return:
+        """
         self.btn_back.clicked.connect(self.btn_back_clicked)
         self.btn_add_another.clicked.connect(self.btn_add_another_clicked)
         self.btn_evaluate_model.clicked.connect(self.btn_evaluate_model_clicked)
@@ -272,18 +288,33 @@ class Ui_MainWindow(object):
         self.txt_timeseries.textChanged.connect(self.timeseriesfilterClicked)
 
     def btn_saveAndReturn_clicked(self):
-        self.save_model()
-        self.btn_back_clicked()
+        """
+                    Save the Model record and close current window
+        """
+        saved = self.save_model()
+        if saved:
+            self.temp_window.hide()
 
     def btn_saveAndReturnUpdate_clicked(self):
-        self.save_model(update=True)
-        self.btn_back_clicked()
+        """
+                    Updates the product record by calling a function update_product
+        """
+        saved = self.save_model(update=True)
+        if saved:
+            self.temp_window.hide()
 
     def btn_add_another_clicked(self):
-        self.save_model()
-        self.clear_window()
+        """
+            Creates a product in a database and refreshes the window to add a new product.
+        """
+        saved = self.save_model()
+        if saved:
+            self.clear_window()
 
     def clear_window(self):
+        """
+                    clear all the field value values in the current window.
+        """
         self.txt_memo.setPlainText("")
         self.txt_timeseries.setText("")
         self.comboBox_type.setCurrentIndex(0)
@@ -309,34 +340,54 @@ class Ui_MainWindow(object):
         self.txt_me16.setText("")
 
     def btn_evaluate_model_clicked(self):
-        self.param_one = self.txt_param1
-        self.param_two = self.txt_param2
-        self.param_three = self.txt_param3
-        self.txt_me1.setText(MODEL_DATA["1"])
-        self.txt_me2.setText(MODEL_DATA["2"])
-        self.txt_me3.setText(MODEL_DATA["3"])
-        self.txt_me4.setText(MODEL_DATA["4"])
-        self.txt_me5.setText(MODEL_DATA["5"])
-        self.txt_me6.setText(MODEL_DATA["6"])
-        self.txt_me7.setText(MODEL_DATA["7"])
-        self.txt_me8.setText(MODEL_DATA["8"])
-        self.txt_me9.setText(MODEL_DATA["9"])
-        self.txt_me10.setText(MODEL_DATA["10"])
-        self.txt_me11.setText(MODEL_DATA["11"])
-        self.txt_me12.setText(MODEL_DATA["12"])
-        self.txt_me13.setText(MODEL_DATA["13"])
-        self.txt_me14.setText(MODEL_DATA["14"])
-        self.txt_me15.setText(MODEL_DATA["15"])
-        self.txt_me16.setText(MODEL_DATA["16"])
+        """
+                Evaluate model and set the values in text edit 1 to 16
+        """
+        # TODO: Write an algorithm to evaluate models
+        if self.selected_timeseries:
+            self.param_one = self.txt_param1.text()
+            self.param_two = self.txt_param2.text()
+            self.param_three = self.txt_param3.text()
+            self.txt_me1.setText(MODEL_DATA["1"])
+            self.txt_me2.setText(MODEL_DATA["2"])
+            self.txt_me3.setText(MODEL_DATA["3"])
+            self.txt_me4.setText(MODEL_DATA["4"])
+            self.txt_me5.setText(MODEL_DATA["5"])
+            self.txt_me6.setText(MODEL_DATA["6"])
+            self.txt_me7.setText(MODEL_DATA["7"])
+            self.txt_me8.setText(MODEL_DATA["8"])
+            self.txt_me9.setText(MODEL_DATA["9"])
+            self.txt_me10.setText(MODEL_DATA["10"])
+            self.txt_me11.setText(MODEL_DATA["11"])
+            self.txt_me12.setText(MODEL_DATA["12"])
+            self.txt_me13.setText(MODEL_DATA["13"])
+            self.txt_me14.setText(MODEL_DATA["14"])
+            self.txt_me15.setText(MODEL_DATA["15"])
+            self.txt_me16.setText(MODEL_DATA["16"])
+        else:
+            QtWidgets.QMessageBox.about(self.temp_window, "message",
+                                        "Select a time-series !!!")
 
     def btn_recommend_model_clicked(self):
+        """
+        Todo: Write an algorithm to recommend model
+        :return:
+        """
         pass
 
     def btn_back_clicked(self):
-        self.win.parent_window.show()
-        self.win.hide()
+        """
+                Hide current window and show Model window
+        :return:
+        """
+        self.temp_window.parent_window.show()
+        self.temp_window.hide()
 
     def save_model(self, update=False):
+        """
+                        Save the model in the database ( Create or update a Model)
+        :param update:
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
         try:
@@ -368,72 +419,40 @@ class Ui_MainWindow(object):
                 me12 and me13 and me14 and me15 and me16 and param1 and param2 and param3):
 
                 if not update:
-                    db.save_model_record(
-                        name=name,
-                        type=type,
-                        me1=me1,
-                        me2=me2,
-                        me3=me3,
-                        me4=me4,
-                        me5=me5,
-                        me6=me6,
-                        me7=me7,
-                        me8=me8,
-                        me9=me9,
-                        me10=me10,
-                        me11=me11,
-                        me12=me12,
-                        me13=me13,
-                        me14=me14,
-                        me15=me15,
-                        me16=me16,
-                        param1=param1,
-                        param2=param2,
-                        param3=param3,
-                        description=description,
-                        time_series_ID=time_series_ID
+                    saved = db.save_model_record(
+                        name=name, type=type, me1=me1, me2=me2, me3=me3, me4=me4, me5=me5, me6=me6, me7=me7, me8=me8,
+                        me9=me9, me10=me10, me11=me11, me12=me12, me13=me13, me14=me14, me15=me15, me16=me16,
+                        param1=param1, param2=param2, param3=param3, description=description,
+                        time_series_ID=time_series_ID, window=self.temp_window
                     )
                 else:
-                    db.update_model_record(
-                        name=name,
-                        type=type,
-                        me1=me1,
-                        me2=me2,
-                        me3=me3,
-                        me4=me4,
-                        me5=me5,
-                        me6=me6,
-                        me7=me7,
-                        me8=me8,
-                        me9=me9,
-                        me10=me10,
-                        me11=me11,
-                        me12=me12,
-                        me13=me13,
-                        me14=me14,
-                        me15=me15,
-                        me16=me16,
-                        param1=param1,
-                        param2=param2,
-                        param3=param3,
-                        description=description,
-                        time_series_ID=time_series_ID,
-                        model_id=self.selected_modelId
+                    saved = db.update_model_record(
+                        name=name, type=type, me1=me1, me2=me2, me3=me3, me4=me4, me5=me5, me6=me6, me7=me7, me8=me8,
+                        me9=me9, me10=me10, me11=me11, me12=me12, me13=me13, me14=me14, me15=me15, me16=me16,
+                        param1=param1, param2=param2, param3=param3, description=description,
+                        time_series_ID=time_series_ID, model_id=self.selected_modelId, window=self.temp_window
                     )
-                QtWidgets.QMessageBox.about(self.win, "info!", "Successfully saved the model !!!")
-                self.win.parent_window.ui.models_list_view()
+                if saved:
+                    QtWidgets.QMessageBox.about(self.temp_window, "info!", "Successfully saved the model !!!")
+                    self.temp_window.parent_window.ui.models_list_view()
+                return saved
+
             else:
-                QtWidgets.QMessageBox.about(self.win, "Error!!!", "Fill the mendetory fields on window !!!")
+                QtWidgets.QMessageBox.about(self.temp_window, "Error!!!", "Fill the mendetory fields on window !!!")
+                return False
         except Exception as ex:
-            QtWidgets.QMessageBox.about(self.win, "Error!!!", str(ex))
+            QtWidgets.QMessageBox.about(self.temp_window, "Error!!!", str(ex))
 
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                                                 Time-Series PART
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def timeseries_list_view(self):
+        """
+                 creates the items of list widget to display the list of Time-series on the window
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses()
+        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses(window=self.temp_window)
         self.listWidget_timeseries.clear()
         index = 0
         for item in self.timeseriesId_list:
@@ -445,11 +464,19 @@ class Ui_MainWindow(object):
         self.listWidget_timeseries.itemClicked.connect(self.timeseries_list_item_event)
 
     def timeseries_list_item_event(self, item):
+        """
+                set the currently selected time-series
+        :param item:
+        """
         self.selected_timeseries = item.text()
         self.selected_timeseriesId = item.data(1)
-        print(self.selected_timeseries, self.selected_timeseriesId)
 
     def select_timeseries_byId(self, timeseries_id):
+        """
+                Set teh time-series class properties by using time-series id
+        :param timeseries_id:
+        :return:
+        """
         if timeseries_id:
             index = self.timeseriesId_list.index(timeseries_id)
             self.selected_timeseriesId = timeseries_id
@@ -457,6 +484,9 @@ class Ui_MainWindow(object):
             self.listWidget_timeseries.setCurrentRow(index)
 
     def timeseriesfilterClicked(self):
+        """
+                Filter the time-series from the time-series list as per the text entered in txt_timeseries
+        """
         filter_text = str(self.txt_timeseries.text()).lower()
         self.listWidget_timeseries.clear()
         index = 0
@@ -467,14 +497,5 @@ class Ui_MainWindow(object):
                 listitem.setData(1, self.timeseriesId_list[index])
                 self.listWidget_timeseries.addItem(listitem)
             index += 1
+
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
-

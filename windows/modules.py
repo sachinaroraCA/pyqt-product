@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QMainWindow
 
 
 class ProductModulesWindow(QMainWindow):
+    """
+                Main class of the Main module
+    """
     def __init__(self, parent=None):
         super(ProductModulesWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Modules")
@@ -10,6 +13,9 @@ class ProductModulesWindow(QMainWindow):
 
 
 class Ui_ProductModulesWindow(object):
+    """
+                    UI class of the Product Window
+    """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedHeight(450)
@@ -18,7 +24,7 @@ class Ui_ProductModulesWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBoxProducts = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBoxProducts.setGeometry(QtCore.QRect(80, 20, 451, 91))
+        self.groupBoxProducts.setGeometry(QtCore.QRect(80, 40, 451, 91))
         self.groupBoxProducts.setObjectName("groupBox")
         self.btn_products = QtWidgets.QPushButton(self.groupBoxProducts)
         self.btn_products.setGeometry(QtCore.QRect(40, 40, 121, 31))
@@ -27,7 +33,7 @@ class Ui_ProductModulesWindow(object):
         self.btn_evaluation.setGeometry(QtCore.QRect(270, 40, 121, 31))
         self.btn_evaluation.setObjectName("btn_evaluation")
         self.groupBoxEvaluation = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBoxEvaluation.setGeometry(QtCore.QRect(80, 140, 451, 91))
+        self.groupBoxEvaluation.setGeometry(QtCore.QRect(80, 160, 451, 91))
         self.groupBoxEvaluation.setObjectName("groupBoxEvaluation")
         self.btn_time_series = QtWidgets.QPushButton(self.groupBoxEvaluation)
         self.btn_time_series.setGeometry(QtCore.QRect(40, 40, 121, 31))
@@ -36,7 +42,7 @@ class Ui_ProductModulesWindow(object):
         self.btn_analysis.setGeometry(QtCore.QRect(270, 40, 121, 31))
         self.btn_analysis.setObjectName("btn_analysis")
         self.groupBoxPredictions = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBoxPredictions.setGeometry(QtCore.QRect(80, 260, 451, 91))
+        self.groupBoxPredictions.setGeometry(QtCore.QRect(80, 280, 451, 91))
         self.groupBoxPredictions.setObjectName("groupBoxPredictions")
         self.btn_model = QtWidgets.QPushButton(self.groupBoxPredictions)
         self.btn_model.setGeometry(QtCore.QRect(40, 40, 121, 31))
@@ -64,6 +70,11 @@ class Ui_ProductModulesWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+                Set the properties of the UI elements
+        :param MainWindow:
+        :return:
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Financial Product Analysis Tool - Modules"))
         self.groupBoxProducts.setTitle(_translate("MainWindow", "Products"))
@@ -77,31 +88,49 @@ class Ui_ProductModulesWindow(object):
         self.btn_prediction.setText(_translate("MainWindow", "Predictions"))
 
     def btn_products_clicked(self):
+        """
+                    Open the Product Window
+        """
         from windows.product_module import ProductWindow
         self.product_window = ProductWindow(parent=self.temp_window)
         self.product_window.show()
 
     def btn_evaluation_clicked(self):
+        """
+                    Open the Evaluation Window
+        """
         from  windows.evaluation_module import EvaluationWindow
         self.evaluation_window = EvaluationWindow(parent=self.temp_window)
         self.evaluation_window.show()
 
     def btn_time_series_clicked(self):
+        """
+                    Open the Time-series Window
+        """
         from  windows.timeseries_module import TimeSeriesWindow
         self.timeseries_window = TimeSeriesWindow(parent=self.temp_window)
         self.timeseries_window.show()
 
     def btn_analysis_clicked(self):
+        """
+                    Open the Analysis Window
+        """
         from  windows.analysis_module import AnalysisWindow
         self.analysis_window = AnalysisWindow(parent=self.temp_window)
         self.analysis_window.show()
 
     def btn_models_clicked(self):
+        """
+                    Open the Models Window
+        """
         from windows.models_module import ModelWindow
         self.model_window = ModelWindow(parent=self.temp_window)
         self.model_window.show()
 
     def btn_prediction_clicked(self):
+        """
+                    Open the Prediction Window
+        """
         from windows.prediction_module import PredictionWindow
         self.prediction_window = PredictionWindow(parent=self.temp_window)
         self.prediction_window.show()

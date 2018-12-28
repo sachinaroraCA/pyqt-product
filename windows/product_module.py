@@ -4,6 +4,9 @@ from PyQt5.QtWidgets import QListWidgetItem
 
 
 class ProductWindow(QMainWindow):
+    """
+                Main class of the Product module
+    """
     def __init__(self, parent=None):
         super(ProductWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Product")
@@ -12,6 +15,9 @@ class ProductWindow(QMainWindow):
 
 
 class Ui_MainWindow(object):
+    """
+                    UI class of the Product Window
+    """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedHeight(450)
@@ -20,48 +26,69 @@ class Ui_MainWindow(object):
         self.products_list = self.get_products()
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(50, 20, 71, 17))
+        self.label.setObjectName("label")
+        
         self.txt_search = QtWidgets.QLineEdit(self.centralwidget)
-        self.txt_search.setPlaceholderText("  Search")
+        self.txt_search.setPlaceholderText("    Search")
         self.txt_search.setGeometry(QtCore.QRect(50, 60, 329, 25))
         self.txt_search.setObjectName("txt_search")
+        # self.txt_search.setStyleSheet("""background: #ffffff;
+        #                                 background-image: "/home/cloudanalogy/PycharmProjects/test_pyqt/windows/search.svg"; /* actual size, e.g. 16x16 */
+        #                                 background-repeat: no-repeat;
+        #                                 background-position: left;
+        #                                 color: #252424;
+        #                                 font-family: SegoeUI;
+        #                                 font-size: 14px;
+        #                                 padding: 2 2 2 20; /* left padding (last number) must be more than the icon's width */
+        #                                     """)
+        
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(380, 40, 131, 151))
-        self.groupBox.setTitle("")
+        self.groupBox.setGeometry(QtCore.QRect(380, 40, 131, 155))
         self.groupBox.setObjectName("groupBox")
-        self.btn_delete = QtWidgets.QPushButton(self.groupBox)
-        self.btn_delete.setGeometry(QtCore.QRect(20, 60, 91, 25))
-        self.btn_delete.setObjectName("btn_delete")
+        
         self.btn_addNew = QtWidgets.QPushButton(self.groupBox)
         self.btn_addNew.setGeometry(QtCore.QRect(20, 30, 89, 25))
         self.btn_addNew.setObjectName("btn_addNew")
-        self.btn_export = QtWidgets.QPushButton(self.groupBox)
-        self.btn_export.setGeometry(QtCore.QRect(20, 120, 91, 25))
-        self.btn_export.setObjectName("btn_export")
+        
+        self.btn_delete = QtWidgets.QPushButton(self.groupBox)
+        self.btn_delete.setGeometry(QtCore.QRect(20, 60, 91, 25))
+        self.btn_delete.setObjectName("btn_delete")
+        
         self.btn_modify = QtWidgets.QPushButton(self.groupBox)
         self.btn_modify.setGeometry(QtCore.QRect(20, 90, 89, 25))
         self.btn_modify.setObjectName("btn_modify")
+
+        self.btn_export = QtWidgets.QPushButton(self.groupBox)
+        self.btn_export.setGeometry(QtCore.QRect(20, 120, 91, 25))
+        self.btn_export.setObjectName("btn_export")
+        
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea.setGeometry(QtCore.QRect(50, 90, 329, 101))
+        self.scrollArea.setGeometry(QtCore.QRect(50, 90, 329, 105))
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
+        
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 313, 99))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(50, 20, 71, 17))
-        self.label.setObjectName("label")
-        self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QtCore.QRect(50, 230, 481, 141))
-        self.groupBox_2.setObjectName("groupBox_2")
-        self.txt_overview = QtWidgets.QTextEdit(self.groupBox_2)
-        self.txt_overview.setGeometry(QtCore.QRect(10, 30, 461, 101))
+        
+        self.groupBox_overview = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox_overview.setGeometry(QtCore.QRect(50, 230, 481, 141))
+        self.groupBox_overview.setObjectName("groupBox_overview")
+        self.groupBox_overview.setTitle("Overview")
+        
+        self.txt_overview = QtWidgets.QTextEdit(self.groupBox_overview)
+        self.txt_overview.setGeometry(QtCore.QRect(0, 20, 481, 121))
         self.txt_overview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.txt_overview.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.txt_overview.setReadOnly(True)
         self.txt_overview.setObjectName("txt_overview")
+        
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
@@ -72,8 +99,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.load_products_list()
-        # self.listWidget.itemClicked.connect(self.list_item_event)
-        self.btn_addNew.clicked.connect(self.open_addNew)
+        self.btn_addNew.clicked.connect(self.btn_addNew_clicked)
         self.btn_delete.clicked.connect(self.btn_delete_clicked)
         self.btn_modify.clicked.connect(self.btn_modify_clicked)
         self.btn_export.clicked.connect(self.btn_export_clicked)
@@ -86,6 +112,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+                Set the properties of the UI elements
+        :param MainWindow:
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Financial Product Analysis Tool - Product"))
         self.btn_delete.setText(_translate("MainWindow", "Delete"))
@@ -93,25 +123,28 @@ class Ui_MainWindow(object):
         self.btn_export.setText(_translate("MainWindow", "Export"))
         self.btn_modify.setText(_translate("MainWindow", "Modify"))
         self.label.setText(_translate("MainWindow", "Products:"))
-        self.groupBox_2.setTitle(_translate("MainWindow", "Overview"))
+        self.groupBox_overview.setTitle(_translate("MainWindow", "Overview"))
 
     def btn_delete_clicked(self):
+        """
+                    Call a function delete_product_byId to delete the selected product
+        """
         buttonReply = QtWidgets.QMessageBox.question(self.temp_window, "Message",
-                                                     'Do you really want to delete this product ?',
+                                                     'Delete the product "{}" ?'.format(self.selected_product),
                                                      QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                      QtWidgets.QMessageBox.No)
         if buttonReply == QtWidgets.QMessageBox.Yes:
-            self.delete_product_byId(self.selected_productId)
-            self.products_list.remove(self.selected_product)
-            self.productId_list.remove(self.selected_productId)
-            self.load_products_list()
-            self.txt_overview.clear()
-        else:
-            print('No clicked.')
-        self.temp_window.show()
-
+            deleted = self.delete_product_byId(self.selected_productId)
+            if deleted:
+                self.products_list.remove(self.selected_product)
+                self.productId_list.remove(self.selected_productId)
+                self.load_products_list()
+                self.txt_overview.clear()
 
     def btn_modify_clicked(self):
+        """
+                    Open the "Product:Add new" window with pre-filled values of selected product to update
+        """
         result = [x.row() for x in self.listWidget.selectedIndexes()]
         if result:
             product_detail_dict = self.product_detail_dict
@@ -149,25 +182,36 @@ class Ui_MainWindow(object):
             self.temp_window.hide()
 
     def btn_export_clicked(self):
-        file_dailog = QFileDialog()
-        default_file_extension = '.csv'
+        """
+                    Export the product field values into a csv file
+        """
+        try:
+            file_dailog = QFileDialog()
+            default_file_extension = '.csv'
 
-        name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-        if default_file_extension not in name:
-            name += default_file_extension
+            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
+            if name:
+                if default_file_extension not in name:
+                    name += default_file_extension
 
-        product_info = self.product_detail_dict
-        print(product_info)
-        keys = list(product_info.keys())
-        import csv
-        with open(name, 'w+') as output_file:
-            dict_writer = csv.DictWriter(output_file, keys)
-            dict_writer.writeheader()
-            dict_writer.writerow(product_info)
+                product_info = self.product_detail_dict
+                print(product_info)
+                keys = list(product_info.keys())
+                import csv
+                with open(name, 'w+') as output_file:
+                    dict_writer = csv.DictWriter(output_file, keys)
+                    dict_writer.writeheader()
+                    dict_writer.writerow(product_info)
 
-        output_file.close()
+                output_file.close()
+                QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
+        except Exception as ex:
+            QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
 
     def search_products(self):
+        """
+                        Filter the product list on the basis on basis searched keyword
+        """
         filter_text = str(self.txt_search.text()).lower()
         self.listWidget.clear()
         index = 0
@@ -181,24 +225,43 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.listWidget)
 
     def delete_product_byId(self, id):
+        """
+                        Delete the products from the database on the basis of id
+        :param id:
+        :return: status i.e, Product deleted or not
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        result = db.delete_product(id)
-        return result
+        status = db.delete_product(id)
+        if not status:
+            QtWidgets.QMessageBox.about(self.temp_window, "Warning", "Database Error !!!")
+        return status
 
     def get_products(self):
+        """
+                        Get the list of all products in the database
+        :return: products_list
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.products_list, self.productId_list = db.get_products()
+        self.products_list, self.productId_list = db.get_products(window=self.temp_window)
         return self.products_list
 
     def get_product_details(self, id):
+        """
+                        Get the details of the Product from the database on the basis of provided id
+        :param id:
+        :return: string, dictionary
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        product_string, self.product_detail_dict = db.get_product_details(id)
+        product_string, self.product_detail_dict = db.get_product_details(id, window=self.temp_window)
         return product_string, self.product_detail_dict
 
     def load_products_list(self):
+        """
+                        add the products into the list widget of the window
+        """
         self.listWidget = QListWidget()
         index =0
         for item in self.productId_list:
@@ -212,7 +275,10 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidget(self.listWidget)
 
     def list_item_event(self, item):
-        print(repr(item.text()))
+        """
+                Selected a product from the product list. So display product details in Overview
+        :param item:
+        """
         self.selected_product = item.text()
         self.selected_productId = item.data(1)
         self.btn_delete.setEnabled(True)
@@ -221,7 +287,10 @@ class Ui_MainWindow(object):
         item_detail = self.get_product_details(id=self.selected_productId)
         self.txt_overview.setPlainText(item_detail[0])
 
-    def open_addNew(self):
+    def btn_addNew_clicked(self):
+        """
+                        Open the "Product:Add new" window
+        """
         from windows.product_addNew import AddNewProductWindow
         self.add_new_win = AddNewProductWindow(parent=self.temp_window)
         self.add_new_win.show()

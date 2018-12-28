@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import *
 
 
 class ModelWindow(QtWidgets.QMainWindow):
+    """
+                Main class of the Model module
+    """
     def __init__(self, parent=None):
         super(ModelWindow, self).__init__(parent)
         self.setWindowTitle("Financial model Analysis Tool - Model")
@@ -11,6 +14,9 @@ class ModelWindow(QtWidgets.QMainWindow):
 
 
 class Ui_MainWindow(object):
+    """
+            UI class of the Model module
+    """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedHeight(450)
@@ -18,25 +24,33 @@ class Ui_MainWindow(object):
         self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(50, 20, 71, 17))
+        self.label.setObjectName("label")
+
         self.txt_search = QtWidgets.QLineEdit(self.centralwidget)
         self.txt_search.setGeometry(QtCore.QRect(50, 60, 329, 25))
         self.txt_search.setObjectName("txt_search")
+
         self.buttonBox = QtWidgets.QGroupBox(self.centralwidget)
         self.buttonBox.setGeometry(QtCore.QRect(380, 40, 131, 151))
         self.buttonBox.setTitle("")
         self.buttonBox.setObjectName("buttonBox")
-        self.btn_delete = QtWidgets.QPushButton(self.buttonBox)
-        self.btn_delete.setGeometry(QtCore.QRect(20, 60, 91, 25))
-        self.btn_delete.setObjectName("btn_delete")
+
         self.btn_addNew = QtWidgets.QPushButton(self.buttonBox)
         self.btn_addNew.setGeometry(QtCore.QRect(20, 30, 89, 25))
         self.btn_addNew.setObjectName("btn_addNew")
-        self.btn_export = QtWidgets.QPushButton(self.buttonBox)
-        self.btn_export.setGeometry(QtCore.QRect(20, 120, 91, 25))
-        self.btn_export.setObjectName("btn_export")
+        self.btn_delete = QtWidgets.QPushButton(self.buttonBox)
+        self.btn_delete.setGeometry(QtCore.QRect(20, 60, 91, 25))
+        self.btn_delete.setObjectName("btn_delete")
         self.btn_modify = QtWidgets.QPushButton(self.buttonBox)
         self.btn_modify.setGeometry(QtCore.QRect(20, 90, 91, 25))
         self.btn_modify.setObjectName("btn_modify")
+        self.btn_export = QtWidgets.QPushButton(self.buttonBox)
+        self.btn_export.setGeometry(QtCore.QRect(20, 120, 91, 25))
+        self.btn_export.setObjectName("btn_export")
+
         self.scrollArea_models = QtWidgets.QScrollArea(self.centralwidget)
         self.scrollArea_models.setGeometry(QtCore.QRect(50, 90, 329, 101))
         self.scrollArea_models.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
@@ -44,21 +58,20 @@ class Ui_MainWindow(object):
         self.scrollArea_models.setWidgetResizable(True)
         self.scrollArea_models.setObjectName("scrollArea_models")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 313, 99))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 309, 99))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.scrollArea_models.setWidget(self.scrollAreaWidgetContents_3)
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(50, 20, 71, 17))
-        self.label.setObjectName("label")
+
         self.groupBox_overview = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_overview.setGeometry(QtCore.QRect(50, 230, 481, 141))
+        self.groupBox_overview.setGeometry(QtCore.QRect(50, 230, 461, 181))
         self.groupBox_overview.setObjectName("groupBox_overview")
         self.txt_overview = QtWidgets.QTextEdit(self.groupBox_overview)
-        self.txt_overview.setGeometry(QtCore.QRect(10, 30, 461, 101))
+        self.txt_overview.setGeometry(QtCore.QRect(0, 20, 461, 161))
         self.txt_overview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.txt_overview.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.txt_overview.setReadOnly(True)
         self.txt_overview.setObjectName("txt_overview")
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
@@ -81,6 +94,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+                Set the properties of the UI elements
+        :param MainWindow:
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Financial model Analysis Tool - Model"))
         self.txt_search.setPlaceholderText(_translate("MainWindow", " Search"))
@@ -92,23 +109,37 @@ class Ui_MainWindow(object):
         self.groupBox_overview.setTitle(_translate("MainWindow", "Overview"))
 
     def btn_addNew_clicked(self):
+        """
+                        Open the "Model:Add new" window
+        """
         from windows.models_addNew import ModelAddNewWindow
         self.model_addnew_win = ModelAddNewWindow(parent=self.temp_window)
         self.model_addnew_win.show()
         self.temp_window.hide()
 
     def btn_delete_clicked(self):
+        """
+                    Call a function delete_model_byId to delete the selected Model
+        """
         if self.selected_modelId:
-            deleted = self.delete_model_byId(self.selected_modelId)
-            if deleted[0]:
-                self.models_list.remove(self.selected_model)
-                self.modelId_list.remove(self.selected_modelId)
-                self.models_list_view()
-                self.txt_overview.clear()
-            else:
-                QMessageBox.about(self.temp_window, "Warning", "Database Error !!!")
+            buttonReply = QtWidgets.QMessageBox.question(self.temp_window, "Message",
+                                                         'Delete the product "{}" ?'.format(self.selected_product),
+                                                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                         QtWidgets.QMessageBox.No)
+            if buttonReply == QtWidgets.QMessageBox.Yes:
+                deleted = self.delete_model_byId(self.selected_modelId)
+                if deleted[0]:
+                    self.models_list.remove(self.selected_model)
+                    self.modelId_list.remove(self.selected_modelId)
+                    self.models_list_view()
+                    self.txt_overview.clear()
+                else:
+                    QMessageBox.about(self.temp_window, "Warning", "Database Error !!!")
 
     def btn_modify_clicked(self):
+        """
+                    Open the "Model:Add new" window with pre-filled values of selected Model to update
+        """
         if self.selected_modelId:
             result = [x.row() for x in self.listWidget.selectedIndexes()]
             if result:
@@ -173,26 +204,37 @@ class Ui_MainWindow(object):
                 self.temp_window.hide()
 
     def btn_export_clicked(self):
-        if self.selected_modelId:
-            file_dailog = QtWidgets.QFileDialog()
-            default_file_extension = '.csv'
+        """
+                    Export the product field values into a csv file
+        """
+        try:
+            if self.selected_modelId:
+                file_dailog = QtWidgets.QFileDialog()
+                default_file_extension = '.csv'
 
-            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-            if default_file_extension not in name:
-                name += default_file_extension
+                name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
+                if name:
+                    if default_file_extension not in name:
+                        name += default_file_extension
 
-            model_info = self.model_detail_dict
-            print(model_info)
-            keys = list(model_info.keys())
-            import csv
-            with open(name, 'w+') as output_file:
-                dict_writer = csv.DictWriter(output_file, keys)
-                dict_writer.writeheader()
-                dict_writer.writerow(model_info)
+                    model_info = self.model_detail_dict
+                    print(model_info)
+                    keys = list(model_info.keys())
+                    import csv
+                    with open(name, 'w+') as output_file:
+                        dict_writer = csv.DictWriter(output_file, keys)
+                        dict_writer.writeheader()
+                        dict_writer.writerow(model_info)
 
-            output_file.close()
+                    output_file.close()
+                    QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
+        except Exception as ex:
+            QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
 
     def search_models(self):
+        """
+                        Filter the Model list on the basis on basis searched keyword
+        """
         filter_text = self.txt_search.text().lower()
         self.listWidget.clear()
         index = 0
@@ -207,24 +249,41 @@ class Ui_MainWindow(object):
         self.scrollArea_models.setWidget(self.listWidget)
 
     def delete_model_byId(self, id):
+        """
+                        Delete the models from the database on the basis of id
+        :param id:
+        :return: status i.e, Model deleted or not
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        result = db.delete_model(id)
+        result = db.delete_model(id, window=self.temp_window)
         return result
 
     def get_models(self):
+        """
+                        Get the list of all models in the database
+        :return: models_list
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.models_list, self.modelId_list = db.get_models()
+        self.models_list, self.modelId_list = db.get_models(window=self.temp_window)
         return self.models_list
 
     def get_model_details(self, id):
+        """
+                        Get the details of the Model from the database on the basis of provided id
+        :param id:
+        :return: string, dictionary
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        model_string, self.model_detail_dict = db.get_model_details(id)
+        model_string, self.model_detail_dict = db.get_model_details(id, window=self.temp_window)
         return model_string, self.model_detail_dict
 
     def models_list_view(self):
+        """
+                        Add the models into the list widget of the window
+        """
         self.listWidget = QListWidget()
         self.get_models()
         self.txt_overview.clear()
@@ -240,6 +299,10 @@ class Ui_MainWindow(object):
         self.scrollArea_models.setWidget(self.listWidget)
 
     def list_item_event(self, item):
+        """
+                Selected a model from the product list. So display model details in Overview
+        :param item:
+        """
         print(repr(item.text()))
         self.selected_model = item.text()
         self.selected_modelId = item.data(1)

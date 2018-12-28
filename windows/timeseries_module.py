@@ -3,17 +3,22 @@ from PyQt5.QtWidgets import QMainWindow
 
 
 class TimeSeriesWindow(QMainWindow):
+    """
+                Main class of the Time-series module
+    """
     def __init__(self, parent=None):
         super(TimeSeriesWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Time Series")
         self.ui = Ui_MainWindow(self)
+        self.parent_win = parent
 
 
 class Ui_MainWindow(object):
+    """
+            USER INTERFACE CLASS OF TIME SERIES WINDOW
+    """
     def __init__(self, MainWindow):
-        """""""""""""""""""""""""""""""""""""""
-          USER INTERFACE OF TIME SERIES WINDOW 
-        """""""""""""""""""""""""""""""""""""""
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedHeight(439)
         MainWindow.setFixedWidth(615)
@@ -117,6 +122,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+                Set the properties of the UI elements
+        :param MainWindow:
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Financial Product Analysis Tool - Time Series"))
         self.txt_timeseries.setPlaceholderText(_translate("MainWindow", " Search"))
@@ -132,34 +141,50 @@ class Ui_MainWindow(object):
         self.btn_return.setText(_translate("MainWindow", "Return"))
 
     def btn_addNew_clicked(self):
+        """
+                        Open the "Time-series:Add new" window
+        """
         from windows.timeseries_addNew import TimeSeriesAddNewWindow
         self.timeseries_addnew_win = TimeSeriesAddNewWindow(self.temp_window)
         self.timeseries_addnew_win.show()
         self.temp_window.hide()
 
     def btn_return_clicked(self):
+        """
+                        Close the current window
+        :return:
+        """
         self.temp_window.hide()
 
     def btn_export_clicked(self):
+        """
+                    Export the time-series data as a CSV file
+        """
+        try:
+            file_dailog = QtWidgets.QFileDialog()
+            default_file_extension = '.csv'
 
-        file_dailog = QtWidgets.QFileDialog()
-        default_file_extension = '.csv'
+            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
+            if name:
+                if default_file_extension not in name:
+                    name += default_file_extension
 
-        name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-        if default_file_extension not in name:
-            name += default_file_extension
-
-        timeseries_info = self.get_timeseries_details()
-        print(timeseries_info)
-        keys = list(timeseries_info.keys())
-        import csv
-        with open(name, 'w+') as output_file:
-            dict_writer = csv.DictWriter(output_file, keys)
-            dict_writer.writeheader()
-            dict_writer.writerow(timeseries_info)
-            output_file.close()
+                timeseries_info = self.get_timeseries_details()
+                keys = list(timeseries_info.keys())
+                import csv
+                with open(name, 'w+') as output_file:
+                    dict_writer = csv.DictWriter(output_file, keys)
+                    dict_writer.writeheader()
+                    dict_writer.writerow(timeseries_info)
+                    output_file.close()
+                QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
+        except Exception as ex:
+            QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
 
     def btn_modify_clicked(self):
+        """
+                    Open the "Time-series:Add new" window with pre-filled values of selected product to update
+        """
         import datetime
         result = [x.row() for x in self.timeseries_listWidget.selectedIndexes()]
         if result:
@@ -175,8 +200,8 @@ class Ui_MainWindow(object):
             self.modify_win.ui.txt_seriesdata.setText(str(timeseries_info["series_data"]))
             end_time = datetime.datetime.fromtimestamp(timeseries_info["end_time"]/1000).strftime('%Y-%m-%d %H:%M:%S.%f')
             start_time = datetime.datetime.fromtimestamp(timeseries_info["start_time"]/1000).strftime('%Y-%m-%d %H:%M:%S.%f')
-            self.modify_win.ui.txt_endtime.setText(str(end_time)[:-7])
-            self.modify_win.ui.txt_starttime.setText(str(start_time)[:-7])
+            self.modify_win.ui.txt_endtime.setText(str(end_time)[:-10])
+            self.modify_win.ui.txt_starttime.setText(str(start_time)[:-10])
             self.modify_win.ui.txt_name.setText(timeseries_info["name"])
             self.modify_win.ui.source_file = timeseries_info["source_file"]
             self.modify_win.ui.modify = True
@@ -184,42 +209,60 @@ class Ui_MainWindow(object):
             self.temp_window.hide()
 
     def btn_delete_clicked(self):
+        """
+                    Call a function delete_timeseries to delete the selected time-series
+        """
         buttonReply = QtWidgets.QMessageBox.question(self.temp_window, "Message",
-                                                     'Do you really want to delete this product ?',
+                                                     'Delete the Time series "{}" ?'.format(self.selected_timeseries),
                                                      QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                      QtWidgets.QMessageBox.No)
         if buttonReply == QtWidgets.QMessageBox.Yes:
-            self.delete_timeseries(self.selected_timeseriesId)
-            self.timeseries_list.remove(self.selected_timeseries)
-            self.timeseriesId_list.remove(self.selected_timeseriesId)
-            self.timeseries_list_view()
+            deleted = self.delete_timeseries(self.selected_timeseriesId)
+            if deleted:
+                self.timeseries_list.remove(self.selected_timeseries)
+                self.timeseriesId_list.remove(self.selected_timeseriesId)
+                self.timeseries_list_view()
 
     def btn_bind_clicked(self):
+        """
+                    Update the id of the selected product in the selected time series
+        :return:
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        updated = db.update_timeseries_productId(self.selected_timeseriesId, self.selected_productId)
+        updated = db.update_timeseries_productId(self.selected_timeseriesId, self.selected_productId,
+                                                 window=self.temp_window)
         if updated:
-            print("Successfully bind the product with time series !!!")
             self.btn_bind.setDisabled(True)
             self.btn_unbind.setDisabled(True)
+            QtWidgets.QMessageBox.about(self.temp_window, "info",
+                                        "Successfully bind the product with time series !!!")
             self.timeseries_list_view()
             self.load_products_list()
 
     def btn_unbind_clicked(self):
+        """
+                    Remove the id of the product from the selected time-series
+        :return:
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        updated = db.update_timeseries_productId(self.selected_timeseriesId, "NULL")
+        updated = db.update_timeseries_productId(self.selected_timeseriesId, "NULL", window=self.temp_window)
         if updated:
-            print("Successfully unbind the product from time series !!!")
             self.btn_bind.setDisabled(True)
             self.btn_unbind.setDisabled(True)
+            QtWidgets.QMessageBox.about(self.temp_window, "info",
+                                        "Successfully unbind the product from time series !!!")
             self.timeseries_list_view()
             self.load_products_list()
 
     def timeseries_list_view(self):
+        """
+                 creates the items of list widget to display the list of Time-series on the window
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses()
+        self.timeseries_list, self.timeseriesId_list = db.get_timeserieses(window=self.temp_window)
         self.timeseries_listWidget = QtWidgets.QListWidget()
 
         index =0
@@ -233,12 +276,15 @@ class Ui_MainWindow(object):
         self.scrollArea_timeseries.setWidget(self.timeseries_listWidget)
 
     def timeseries_list_item_event(self, item):
+        """
+                set the currently selected time-series for the window with its availability to bind or unbind
+        :param item:
+        """
         self.selected_timeseries = item.text()
         self.selected_timeseriesId = item.data(1)
         self.btn_export.setEnabled(True)
         self.btn_delete.setEnabled(True)
         self.btn_modify.setEnabled(True)
-        print(self.selected_timeseriesId)
         self.get_timeseries_details()
         if self.selected_timeseries and self.selected_product:
             if self.timeseries_info["product_ID"] == self.selected_productId:
@@ -252,19 +298,30 @@ class Ui_MainWindow(object):
                 self.btn_unbind.setDisabled(True)
 
     def get_timeseries_details(self):
+        """
+                Get details of the Time series from the database.
+        :return: timeseries_info
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.timeseries_info = db.get_timeseries_details(self.selected_timeseriesId)
+        self.timeseries_info = db.get_timeseries_details(self.selected_timeseriesId, window=self.temp_window)
         return self.timeseries_info
 
     def delete_timeseries(self, id):
+        """
+                Calls a function delete_timeseries from database_util.py class to delete the Time series.
+        :param id:
+        :return:
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        deleted = db.delete_timeseries(id=id)
-        if deleted:
-            print("Successfully deleted the time series !!!")
+        deleted = db.delete_timeseries(id=id, window=self.temp_window)
+        return deleted
 
     def timeseriesfilterClicked(self):
+        """
+                Filter the time-series from the time-series list as per the text entered in txt_timeseries
+        """
         filter_text = str(self.txt_timeseries.text()).lower()
         self.timeseries_listWidget.clear()
         index = 0
@@ -281,11 +338,18 @@ class Ui_MainWindow(object):
                                       PRODUCT PART
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def get_products(self):
+        """
+                        Get the list of all products in the database
+        :return: products_list
+        """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.products_list, self.productId_list = db.get_products()
+        self.products_list, self.productId_list = db.get_products(window=self.temp_window)
 
     def load_products_list(self):
+        """
+                        add the products into the list widget of the window
+        """
         self.listWidget_product = QtWidgets.QListWidget()
         self.get_products()
         index = 0
@@ -299,6 +363,11 @@ class Ui_MainWindow(object):
         self.scrollArea_products.setWidget(self.listWidget_product)
 
     def list_item_event(self, item):
+        """
+                Selected a product from the product list. So display product details in Overview
+        :param item:
+        :return:
+        """
         self.selected_product = item.text()
         self.selected_productId = item.data(1)
         if self.selected_timeseries and self.selected_product:
@@ -312,8 +381,10 @@ class Ui_MainWindow(object):
                 self.btn_bind.setDisabled(True)
                 self.btn_unbind.setDisabled(True)
 
-
     def productfilterClicked(self):
+        """
+                        Filter the product list on the basis on basis searched keyword
+        """
         filter_text = str(self.txt_products.text()).lower()
         self.listWidget_product.clear()
         index = 0

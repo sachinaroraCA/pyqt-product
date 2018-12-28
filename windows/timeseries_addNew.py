@@ -5,6 +5,9 @@ ANALYSE_TYPE = ['A', 'B', 'C']   # Constant list containing available type of AN
 
 
 class TimeSeriesAddNewWindow(QtWidgets.QMainWindow):
+    """
+                Main class of the Time-series:Add new module
+    """
     def __init__(self, parent=None):
         super(TimeSeriesAddNewWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Time Series:Add new")
@@ -14,9 +17,12 @@ class TimeSeriesAddNewWindow(QtWidgets.QMainWindow):
 
 
 class Ui_MainWindow(object):
+    """
+            UI class of the Time-series:Add new module
+    """
     def __init__(self, MainWindow):
         """
-        # Constructor containing the UI of the "Time Series:Add new" window
+        # init function containing the UI of the "Time Series:Add new" window
         :param MainWindow: Parent class of the current class
         """
         MainWindow.setObjectName("MainWindow")
@@ -107,7 +113,7 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.modify =False
+        self.modify = False
         self.btn_load_file.clicked.connect(self.btn_load_file_clicked)
         self.btn_back.clicked.connect(self.btn_back_clicked)
         self.btn_addanother.clicked.connect(self.btn_addanother_clicked)
@@ -117,6 +123,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+                            Set the properties of the UI elements
+        :param MainWindow:
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Financial Product Analysis Tool - Time Series:Add new"))
         self.lbl_header.setText(_translate("MainWindow", "Add a new Time Series : "))
@@ -138,64 +148,93 @@ class Ui_MainWindow(object):
         """
                                     LOAD SOURCE FILE AND CALCULATE RELATED FIELDS
         """
-        file_dailog = QtWidgets.QFileDialog(self.temp_window)
-        file_path = file_dailog.getOpenFileName(self.temp_window, filter="Docs (*.csv *.xls)")[0]
-        from utils.path_utils import copy_file
-        import pandas as pd
+        try:
+            file_dailog = QtWidgets.QFileDialog(self.temp_window)
+            file_path = file_dailog.getOpenFileName(self.temp_window, filter="Docs (*.csv *.xls)")[0]
+            from utils.path_utils import copy_file
+            import pandas as pd
 
-        df = pd.read_excel(file_path, header=None, usecols=[0, 1])
-        empty_data = 0
-        for time, data in df.get_values():
-            if pd.isnull(data):
-                empty_data += 1
-        self.txt_emptydata.setText(str(empty_data))
-        self.txt_seriesdata.setText(str(df.__len__() - empty_data))
-        self.txt_starttime.setText(str(df[0].min()))
-        self.txt_endtime.setText(str(df[0].max()))
-        self.source_file = copy_file(source = file_path, dest="source_file")
-
+            df = pd.read_excel(file_path, header=None, usecols=[0, 1])
+            empty_data = 0
+            for time, data in df.get_values():
+                if pd.isnull(data):
+                    empty_data += 1
+            self.txt_emptydata.setText(str(empty_data))
+            self.txt_seriesdata.setText(str(df.__len__() - empty_data))
+            self.txt_starttime.setText(str(df[0].min()))
+            self.txt_endtime.setText(str(df[0].max()))
+            self.source_file = copy_file(source = file_path, dest="source_file")
+        except Exception as ex:
+            QtWidgets.QMessageBox.about(self.temp_window, "Error", "Select a proper source file")
 
     def btn_back_clicked(self):
+        """
+                        Close the current window and show Time-series window
+        """
         self.temp_window.parent_win.show()
         self.temp_window.hide()
 
     def btn_addanother_clicked(self):
-        self.save_timeseries()
-        self.clear_window()
+        """
+                    Save the time series and clear all values from the fields of the window
+        """
+        saved = self.save_timeseries()
+        if saved:
+            self.clear_window()
 
     def btn_saveAndReturn_clicked(self):
-        self.save_timeseries()
-        self.btn_back_clicked()
+        """
+                    Save the time-series, close the current window and show Time-series window
+        """
+        saved = self.save_timeseries()
+        if saved:
+            self.temp_window.parent_win.parent_win.show()
+            self.temp_window.hide()
 
     def save_timeseries(self):
         """
-                                                    CREATE NEW TIME_SERIES
-        :return:
+                      Save the time-series in the database ( Create or update the time-series record)
+        :return: Status i.e, time-series is saved or not
         """
         from utils.database_utils import DatabaseConnect
-        from utils.time_utils import unix_time_millis
+        from utils.time_utils import unix_time_millis  # Function to convert the time from datetime to milliseconds
         db = DatabaseConnect()
         analyse_type = self.combo_analysetype.currentText()
-        name = self.txt_name.text()
-        start_time = unix_time_millis(self.txt_starttime.text())
-        end_time = unix_time_millis(self.txt_endtime.text())
+        name = self.txt_name.text().strip()
+        try:
+            start_time = unix_time_millis(self.txt_starttime.text())
+            end_time = unix_time_millis(self.txt_endtime.text())
+        except ValueError:
+            start_time = None
+            end_time = None
         series_data = self.txt_seriesdata.text()
         empty_data = self.txt_emptydata.text()
         file_type = self.combo_filetype.currentText()
         memo = self.txt_memo.toPlainText()
 
-        if self.modify:
-            id = db.update_timeseries(product_id=self.selected_productId, timeseries_id=self.selected_timeseriesId,
-                                      analyse_type=analyse_type, description=memo, empty_data=empty_data,
-                                      end_time=end_time, file_type=file_type, name=name, series_data=series_data,
-                                      start_time=start_time, source_file=self.source_file)
+        print(name, start_time, end_time, empty_data, series_data)
+
+        if name and start_time and end_time and end_time and series_data and empty_data:
+            if self.modify:
+                id = db.update_timeseries(product_id=self.selected_productId, timeseries_id=self.selected_timeseriesId,
+                                          analyse_type=analyse_type, description=memo, empty_data=empty_data,
+                                          end_time=end_time, file_type=file_type, name=name, series_data=series_data,
+                                          start_time=start_time, source_file=self.source_file, window=self.temp_window)
+            else:
+                id = db.save_timeseries(analyse_type=analyse_type, description=memo, empty_data=empty_data, end_time=end_time,
+                                        file_type=file_type, name=name, series_data=series_data, start_time=start_time,
+                                        source_file=self.source_file, window=self.temp_window)
+            if id:
+                self.temp_window.parent_win.ui.timeseries_list_view()
+                QtWidgets.QMessageBox.about(self.temp_window, "Info", "Record Saved Successfully !!!")
+                return True
         else:
-            id = db.save_timeseries(analyse_type=analyse_type, description=memo, empty_data=empty_data, end_time=end_time,
-                                    file_type=file_type, name=name, series_data=series_data, start_time=start_time,
-                                    source_file=self.source_file)
-        if id:
-            self.temp_window.parent_win.ui.timeseries_list_view()
-            QtWidgets.QMessageBox.about(self.temp_window, "Info", "Record Saved Successfully !!!")
+            if not name:
+                self.txt_name.setText("")
+                self.txt_name.setFocus()
+            elif not start_time or not end_time or not series_data or not empty_data:
+                QtWidgets.QMessageBox.about(self.temp_window, "Info", "Upload a proper source file!!!")
+            return False
 
     def clear_window(self):
         """

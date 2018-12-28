@@ -2,8 +2,13 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from utils.tab_utils import TabWidget
 from utils.path_utils import copy_file
+from utils.graph_utils import BAR_COLORS, create_graph_indicator
+
 
 class EvaluationEvaluateWindow(QMainWindow):
+    """
+                Main class of the Evaluation - evaluate module
+    """
     def __init__(self, parent=None, selected_product_details=None):
         super(EvaluationEvaluateWindow, self).__init__(parent)
         self.ui = Ui_MainWindow(self, selected_product_details)
@@ -13,6 +18,9 @@ class EvaluationEvaluateWindow(QMainWindow):
 
 
 class Ui_MainWindow(object):
+    """
+                UI of the Evaluation - evaluate module
+    """
     def __init__(self, MainWindow, selected_product_details):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedHeight(580)
@@ -70,16 +78,26 @@ class Ui_MainWindow(object):
         pg.setConfigOption('foreground', 'k')
         self.win = pg.PlotWidget()
 
-        self.bg = pg.BarGraphItem(x=[], height=[], width=0.5, brush='r')
+        self.bg = pg.BarGraphItem(x=[], height=[], width=0.5, brushes=BAR_COLORS)
+        self.win.setXRange(0.5, 9.5)
         self.win.addItem(self.bg)
 
         # set the layout
-        self.graph_layout = QtWidgets.QHBoxLayout()
-        self.graph_layout.setGeometry(QtCore.QRect(40, 30, 400, 251))
+        self.graph_layout = QtWidgets.QVBoxLayout()
+        self.graph_layout.setGeometry(QtCore.QRect(30, 30, 450, 251))
         self.graph_layout.addWidget(self.win)
 
+        self.graph_layout2 = QtWidgets.QVBoxLayout()
+        self.graph_layout2.setGeometry(QtCore.QRect(30, 260, 450, 100))
+        # self.graph_layout.addLayout(self.graph_layout2)
+
+        self.groupBox_3 = QtWidgets.QGroupBox(self.tab_overview)
+        self.groupBox_3.setGeometry(QtCore.QRect(30, 260, 450, 55))
+        self.groupBox_3.setLayout(self.graph_layout2)
+        self.groupBox_3.setStyleSheet("background-color:white;")
+
         self.groupBox_2 = QtWidgets.QGroupBox(self.tab_overview)
-        self.groupBox_2.setGeometry(QtCore.QRect(40, 30, 400, 251))
+        self.groupBox_2.setGeometry(QtCore.QRect(30, 30, 450, 251))
         self.groupBox_2.setObjectName("groupBox_2")
         self.groupBox_2.setLayout(self.graph_layout)
         """                            *********         """
@@ -89,11 +107,14 @@ class Ui_MainWindow(object):
         self.lbl_graph.setObjectName("lbl_graph")
         self.lbl_graph.setText("Not Evaluated Yet")
 
+        create_graph_indicator(self.graph_layout2)
+        self.graph_layout.addLayout(self.graph_layout2)
+
         self.btn_attachment1 = QtWidgets.QPushButton(self.tab_overview)
-        self.btn_attachment1.setGeometry(QtCore.QRect(70, 340, 121, 51))
+        self.btn_attachment1.setGeometry(QtCore.QRect(70, 370, 121, 51))
         self.btn_attachment1.setObjectName("btn_attachment1")
         self.btn_attachment2 = QtWidgets.QPushButton(self.tab_overview)
-        self.btn_attachment2.setGeometry(QtCore.QRect(300, 340, 121, 51))
+        self.btn_attachment2.setGeometry(QtCore.QRect(300, 370, 121, 51))
         self.btn_attachment2.setObjectName("btn_attachment2")
         self.tab.addTab(self.tab_overview, "")
 
@@ -112,7 +133,7 @@ class Ui_MainWindow(object):
         self.btn_back.setGeometry(QtCore.QRect(130, 540, 100, 25))
         self.btn_back.setObjectName("btn_back")
         self.lbl_prduct = QtWidgets.QLabel(self.centralwidget)
-        self.lbl_prduct.setGeometry(QtCore.QRect(10, 10, 91, 17))
+        self.lbl_prduct.setGeometry(QtCore.QRect(15, 5, 550, 17))
         self.lbl_prduct.setObjectName("lbl_prduct")
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -126,6 +147,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self):
+        """
+               Set the properties of the UI elements
+        :return:
+        """
         _translate = QtCore.QCoreApplication.translate
         self.btn_save.setText(_translate("MainWindow", "Save"))
         self.btn_return.setText(_translate("MainWindow", "Return"))
@@ -149,7 +174,6 @@ class Ui_MainWindow(object):
         self.btn_return.clicked.connect(self.btn_return_clicked)
         self.btn_save.clicked.connect(self.btn_save_clicked)
 
-
     def btn_attachment1_clicked(self):
         """
                                             UPLOAD ATTACHMENT 1
@@ -158,15 +182,15 @@ class Ui_MainWindow(object):
         from PyQt5.QtCore import QSize
         from PyQt5.QtGui import QIcon
         file_dailog = QFileDialog(self.temp_window)
-        file_path = file_dailog.getOpenFileName(self.temp_window, filter="Images (*.png *.jpg)")[0]
-        print(file_path)
+        file_path = file_dailog.getOpenFileName(self.temp_window)[0]
         if file_path:
             icon = QIcon(file_path)
             self.attachment1_path = copy_file(file_path, dest="attachment")
             self.btn_attachment1.setAutoFillBackground(True)
             self.btn_attachment1.setIconSize(QSize(self.btn_attachment1.width(), self.btn_attachment1.height()))
-            self.btn_attachment1.setText("")
+
             self.btn_attachment1.setIcon(icon)
+            self.btn_attachment1.setText(file_path.split("/")[-1])
             self.btn_attachment1.show()
 
     def btn_attachment2_clicked(self):
@@ -183,8 +207,8 @@ class Ui_MainWindow(object):
             self.attachment2_path = copy_file(file_path, dest="attachment")
             self.btn_attachment2.setAutoFillBackground(True)
             self.btn_attachment2.setIconSize(QSize(self.btn_attachment2.width(), self.btn_attachment2.height()))
-            self.btn_attachment2.setText("")
-            self.btn_attachment2.setIcon(icon)
+            self.btn_attachment1.setIcon(icon)
+            self.btn_attachment1.setText(file_path.split("/")[-1])
             self.btn_attachment2.show()
 
     def btn_back_clicked(self):
@@ -192,7 +216,7 @@ class Ui_MainWindow(object):
                                         HIDE CURRENT WINDOW AND SHOW PARENT WINDOW
         :return:
         """
-        self.win.parent_win.show()
+        self.temp_window.parent_win.show()
         self.temp_window.hide()
 
     def btn_reset_clicked(self):
@@ -211,16 +235,21 @@ class Ui_MainWindow(object):
     def get_questions(self):
         """
                                         GET ALL THE QUESTIONS FROM DATABASE
-        :return:
+        :return: questions
         """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        questions = db.get_all_questions()
+        questions = db.get_all_questions(window=self.temp_window)
         return questions
 
     def create_tab_layout(self, object_name="tab"):
+        """
+                                Create the layout of the tab
+        :param object_name:
+        :return: tab
+        """
         tab = TabWidget(self.centralwidget)
-        tab.setGeometry(QtCore.QRect(20, 30, 700, 500))
+        tab.setGeometry(QtCore.QRect(25, 30, 700, 500))
         tab.setLayoutDirection(QtCore.Qt.LeftToRight)
         tab.setTabPosition(QtWidgets.QTabWidget.West)
         tab.setElideMode(QtCore.Qt.ElideNone)
@@ -228,11 +257,24 @@ class Ui_MainWindow(object):
         return tab
 
     def create_tab(self, object_name="tab_dimension"):
+        """
+                        Create a tab for the dimension
+        :param object_name:
+        :return:
+        """
         tab_dimension = QtWidgets.QWidget(self.temp_window.centralWidget())
         tab_dimension.setObjectName(object_name)
         return tab_dimension
 
-    def create_questionbox(self, tab_dimension, question, position=0, object_name="quesBox"):
+    def create_questionbox(self, tab_dimension, question, position, object_name):
+        """
+                        Create a question the dimension
+        :param tab_dimension:
+        :param question:
+        :param position:
+        :param object_name:
+        :return:
+        """
         question_box = QtWidgets.QGroupBox(tab_dimension)
         question_box.setGeometry(QtCore.QRect(40, 10 + (60 * position), 450, 50))
         question_box.setObjectName(object_name)
@@ -240,7 +282,16 @@ class Ui_MainWindow(object):
         QtWidgets.QButtonGroup(question_box)
         return question_box
 
-    def create_option(self, question_box, text, index=0, object_name="option", disable=False):
+    def create_option(self, question_box, text, index, object_name, disable=False):
+        """
+                                Create 5 options 1-5 to select a answer
+        :param question_box:
+        :param text:
+        :param index:
+        :param object_name:
+        :param disable:
+        :return: option
+        """
         option = QtWidgets.QRadioButton(question_box)
         option.setGeometry(QtCore.QRect(10 + (90 * index), 25, 81, 23))
         option.setObjectName(object_name)
@@ -250,18 +301,27 @@ class Ui_MainWindow(object):
         return option
 
     def btn_return_clicked(self):
-        self.btn_save_clicked()
+        """
+                    Save evaluation and return to the Evaluation window
+        """
+        buttonReply = QtWidgets.QMessageBox.question(self.temp_window, "Message",
+                                                     'Do you want to save the Evaluation of product"{}" ?'.format(self.selected_product),
+                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                     QtWidgets.QMessageBox.No)
+        if buttonReply == QtWidgets.QMessageBox.Yes:
+            self.btn_save_clicked()
         self.temp_window.hide()
 
     def btn_save_clicked(self):
+        """
+                    Save the Evaluation in the fpat_evaluation table
+        :return:
+        """
         tabs = self.tab.children()[0].children()
         answer_list = []
         self.create_evaluation(self.attachment1_path, self.attachment2_path)
         for tab in tabs:
-            if tab and tab.objectName() == "tab_overview":
-                pass
-
-            elif tab and "tab_" in tab.objectName():
+            if tab and "tab_" in tab.objectName() and tab.objectName() != "tab_overview":
                 tab_name = str(tab.objectName())
                 dimension = int((tab_name).replace("tab_", ""))
                 for quesbox in tab.children():
@@ -274,32 +334,60 @@ class Ui_MainWindow(object):
                             self.save_answers(question, answer, dimension)
 
         self.temp_window.parent_win.ui.load_products_list()
+        self.btn_reset.setDisabled(True)
+        self.btn_save.setDisabled(True)
+        self.btn_return.setDisabled(True)
         QtWidgets.QMessageBox.about(self.temp_window, "Message", 'Evaluation saved successfully !!!')
 
     def save_answers(self, question, answer, dimension):
+        """
+                            Save the answers of the evaluation in the database
+        :param question:
+        :param answer:
+        :param dimension:
+        :return:
+        """
         from utils.database_utils import DatabaseConnect
         conn = DatabaseConnect()
         saved = conn.save_answers(answer=answer, question=question, dimension=dimension,
-                                  evaluation_id=self.evaluation_id)
+                                  evaluation_id=self.evaluation_id, window=self.temp_window)
         if saved:
             print("Answer saved Successfully !!!!")
 
     def create_evaluation(self, attachment_one, attachment_two):
+        """
+                            Save gthe evaluation with attachment paths in the database
+        :param attachment_one:
+        :param attachment_two:
+        :return:
+        """
         from utils.database_utils import DatabaseConnect
         conn = DatabaseConnect()
-        self.evaluation_id = conn.create_evaluation(self.selected_productId, attachment_one, attachment_two)
+        self.evaluation_id = conn.create_evaluation(self.selected_productId, attachment_one, attachment_two,
+                                                    window=self.temp_window)
 
     def create_graph(self, x, y):
+        """
+                    Create a graph in the UI of the window
+        :param x:
+        :param y:
+        :return:
+        """
         print("x", x, "y", y)
         import pyqtgraph as pg
         # create bar chart
         self.win.removeItem(self.bg)
-        self.bg = pg.BarGraphItem(x=x, height=y, width=0.5, brush='r')
+        self.bg = pg.BarGraphItem(x=x, height=y, width=0.5, brushes=BAR_COLORS)
         self.win.addItem(self.bg)
+        self.win.setXRange(0.5, 9.5)
+        self.win.setYRange(0, 100)
         self.graph_layout.addWidget(self.win)
         self.groupBox_2.setLayout(self.graph_layout)
 
-    def tab_overview_selected(self, index):
+    def tab_overview_selected(self):
+        """
+                    Evaluate the questions and create a graph to display on UI aof the overview tab
+        """
         selected_tab = self.tab.currentWidget()
         if selected_tab.objectName() == "tab_overview":
             tabs = self.tab.children()[0].children()
@@ -319,18 +407,17 @@ class Ui_MainWindow(object):
                             if option.isChecked():
                                 answer = int(option.text())
                                 answer_list.append(answer)
-                                print("question::", question, "\nAnswer", answer, "\nDimension", dimension)
-                    answers.update({dimension:answer_list})
+                    answers.update({dimension: answer_list})
 
             from utils.algo_utils import get_dimension_score
             for dimension, answers in answers.items():
                 d_score = get_dimension_score(answers)
                 dimension_scores.update({dimension: d_score})
 
-            x, y = list(dimension_scores.keys()), list(dimension_scores.values())
+            x= [item for item in range(1,10)]
+            y= [dimension_scores[item] for item in x]
             self.create_graph(x=x, y=y)
             self.lbl_graph.setText("")
-            print("dimension_scores", dimension_scores)
 
 
 if __name__ == "__main__":
