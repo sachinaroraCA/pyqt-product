@@ -410,7 +410,7 @@ class Ui_MainWindow(object):
 
     def get_model_details(self, id):
         """
-                get details of the Time series from the database.
+                get details of the model from the database.
         :return: string, dictionary
         """
         from utils.database_utils import DatabaseConnect
@@ -420,7 +420,7 @@ class Ui_MainWindow(object):
 
     def models_list_view(self):
         """
-                        add the models into the list widget of the window
+                        Add the models into the list widget of the window
         """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
@@ -437,7 +437,7 @@ class Ui_MainWindow(object):
 
     def model_list_item_event(self, item):
         """
-                Selected a model from the product list. So display model details in Overview
+                Selected a model from the model list and get 3 params from Model
         :param item:
         """
         print(repr(item.text()))

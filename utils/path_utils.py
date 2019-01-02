@@ -37,6 +37,10 @@ def copy_file(source, dest):
         directory = SOURCE_FILES_DIRECTORY
     else:
         directory = OTHER_DIRECTORY
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
     destination = directory + "/" + file_name + "_" + create_random_string() + "." + file_extension
     shutil.copy(source, destination)
     shutil.copystat(source, destination)

@@ -205,7 +205,7 @@ class Ui_MainWindow(object):
 
     def btn_export_clicked(self):
         """
-                    Export the product field values into a csv file
+                    Export the model field values into a csv file
         """
         try:
             if self.selected_modelId:

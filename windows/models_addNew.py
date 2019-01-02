@@ -473,7 +473,7 @@ class Ui_MainWindow(object):
 
     def select_timeseries_byId(self, timeseries_id):
         """
-                Set teh time-series class properties by using time-series id
+                Set the time-series properties by using time-series id
         :param timeseries_id:
         :return:
         """

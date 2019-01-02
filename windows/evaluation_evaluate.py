@@ -201,14 +201,14 @@ class Ui_MainWindow(object):
         from PyQt5.QtCore import QSize
         from PyQt5.QtGui import QIcon
         file_dailog = QFileDialog(self.temp_window)
-        file_path = file_dailog.getOpenFileName(self.temp_window, filter="Images (*.png *.jpg)")[0]
+        file_path = file_dailog.getOpenFileName(self.temp_window)[0]
         if file_path:
             icon = QIcon(file_path)
             self.attachment2_path = copy_file(file_path, dest="attachment")
             self.btn_attachment2.setAutoFillBackground(True)
             self.btn_attachment2.setIconSize(QSize(self.btn_attachment2.width(), self.btn_attachment2.height()))
-            self.btn_attachment1.setIcon(icon)
-            self.btn_attachment1.setText(file_path.split("/")[-1])
+            self.btn_attachment2.setIcon(icon)
+            self.btn_attachment2.setText(file_path.split("/")[-1])
             self.btn_attachment2.show()
 
     def btn_back_clicked(self):
