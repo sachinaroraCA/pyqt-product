@@ -2,8 +2,13 @@ import os
 
 # Directory paths
 UTIL_DIRECTORY = os.getcwd()
-PROJECT_DIRECTORY = os.path.abspath(os.pardir)
+
+PROJECT_DIRECTORY = os.path.abspath(os.path.join(UTIL_DIRECTORY, os.pardir))
+
 FILES_DIRECTORY = PROJECT_DIRECTORY + '/attachment_files'
+if not os.path.exists(FILES_DIRECTORY):
+    PROJECT_DIRECTORY = UTIL_DIRECTORY
+    FILES_DIRECTORY = PROJECT_DIRECTORY + '/attachment_files'
 SOURCE_FILES_DIRECTORY = PROJECT_DIRECTORY + '/source_files'
 OTHER_DIRECTORY = PROJECT_DIRECTORY + '/other_files'
 
@@ -40,7 +45,6 @@ def copy_file(source, dest):
 
     if not os.path.exists(directory):
         os.makedirs(directory)
-
     destination = directory + "/" + file_name + "_" + create_random_string() + "." + file_extension
     shutil.copy(source, destination)
     shutil.copystat(source, destination)
