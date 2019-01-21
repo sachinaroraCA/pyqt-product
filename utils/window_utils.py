@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QWidget, QLabel, QDialog
+from PyQt5.QtGui import QPixmap
 
 
 SCREEN_RESOLUTION = {}
@@ -40,3 +42,23 @@ def get_resolution_ratio(win_width, win_height):
     width_ratio: float = width / win_width - 0.2
     height_ratio: float = height / win_height - 0.2
     return width_ratio, height_ratio
+
+
+def ImageWindow(win, image_path=None):
+    self = QDialog(parent=win)
+    self.title = 'Attachment'
+    self.left = 10
+    self.top = 10
+    self.width = 600
+    self.height = 450
+
+    self.setWindowTitle(self.title)
+    self.setGeometry(self.left, self.top, self.width, self.height)
+
+    # Create widget
+    label = QLabel(self)
+    pixmap = QPixmap(image_path)
+    label.setPixmap(pixmap)
+    self.resize(pixmap.width(), pixmap.height())
+
+    self.show()

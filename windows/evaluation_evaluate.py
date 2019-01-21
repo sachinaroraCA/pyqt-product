@@ -448,6 +448,8 @@ class Ui_MainWindow(object):
                 self.btn_attachment1.setAutoFillBackground(True)
                 self.btn_attachment1.setText(file_path.split("/")[-1][:10]+"..")
                 self.btn_attachment1.show()
+                self.btn_attachment1.clicked.disconnect(self.btn_attachment1_clicked)
+                self.btn_attachment1.clicked.connect(self.show_attachment1)
 
             if attachments["attachment_two"] is not None and attachments["attachment_two"] != "":
                 self.attachment2_path = attachments["attachment_two"]
@@ -457,6 +459,8 @@ class Ui_MainWindow(object):
                     self.btn_attachment2.setAutoFillBackground(True)
                     self.btn_attachment2.setText(file_path.split("/")[-1][:10]+"..")
                     self.btn_attachment2.show()
+                    self.btn_attachment2.clicked.disconnect(self.btn_attachment2_clicked)
+                    self.btn_attachment2.clicked.connect(self.show_attachment2)
 
         for tab in tabs:
             if tab and "tab_" in tab.objectName() and tab.objectName() != "tab_overview":
@@ -477,6 +481,14 @@ class Ui_MainWindow(object):
         self.btn_reset.setDisabled(True)
         self.btn_save.setDisabled(True)
         self.btn_return.setDisabled(True)
+
+    def show_attachment1(self):
+        from utils.window_utils import ImageWindow
+        ImageWindow(win=self.temp_window, image_path=self.attachment1_path)
+
+    def show_attachment2(self):
+        from utils.window_utils import ImageWindow
+        ImageWindow(win=self.temp_window, image_path=self.attachment2_path)
 
     def btn_attachment1_leave(self):
         if self.attachment1_path:
