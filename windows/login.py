@@ -14,6 +14,7 @@ class Ui_LoginWindow(object):
         # MainWindow.resize(614, 417)
         MainWindow.setFixedHeight(450)
         MainWindow.setFixedWidth(600)
+        # self.screen_resolution = screen_resolution
         self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

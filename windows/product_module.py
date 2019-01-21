@@ -12,6 +12,7 @@ class ProductWindow(QMainWindow):
         self.setWindowTitle("Financial Product Analysis Tool - Product")
         self.parent_win = parent
         self.ui = Ui_MainWindow(self)
+        self.setWindowState(QtCore.Qt.WindowMaximized)
 
 
 class Ui_MainWindow(object):
@@ -20,83 +21,78 @@ class Ui_MainWindow(object):
     """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(450)
-        MainWindow.setFixedWidth(600)
         self.temp_window = MainWindow
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(900, 700)
+        MainWindow.setMinimumWidth(self.width_ratio*900)
+        MainWindow.setMinimumHeight(self.height_ratio*700)
+
+        qtRectangle = self.temp_window.frameGeometry()
+        centerPoint = QtWidgets.QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.temp_window.move(qtRectangle.topLeft())
+
         self.products_list = self.get_products()
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(50, 20, 71, 17))
+        self.label.setGeometry(QtCore.QRect(self.width_ratio*75, self.height_ratio*30, self.width_ratio*105, self.height_ratio*25))
         self.label.setObjectName("label")
         
         self.txt_search = QtWidgets.QLineEdit(self.centralwidget)
         self.txt_search.setPlaceholderText("    Search")
-        self.txt_search.setGeometry(QtCore.QRect(50, 60, 329, 25))
+        self.txt_search.setGeometry(QtCore.QRect(self.width_ratio*75, self.height_ratio*90, self.width_ratio*495, self.height_ratio*38))
         self.txt_search.setObjectName("txt_search")
-        # self.txt_search.setStyleSheet("""background: #ffffff;
-        #                                 background-image: "/home/cloudanalogy/PycharmProjects/test_pyqt/windows/search.svg"; /* actual size, e.g. 16x16 */
-        #                                 background-repeat: no-repeat;
-        #                                 background-position: left;
-        #                                 color: #252424;
-        #                                 font-family: SegoeUI;
-        #                                 font-size: 14px;
-        #                                 padding: 2 2 2 20; /* left padding (last number) must be more than the icon's width */
-        #                                     """)
         
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(380, 40, 131, 155))
+        self.groupBox.setGeometry(QtCore.QRect(self.width_ratio*570, self.height_ratio*70, self.width_ratio*195, self.height_ratio*240))
         self.groupBox.setObjectName("groupBox")
-        
+
         self.btn_addNew = QtWidgets.QPushButton(self.groupBox)
-        self.btn_addNew.setGeometry(QtCore.QRect(20, 30, 89, 25))
+        self.btn_addNew.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*45, self.width_ratio*135, self.height_ratio*38))
         self.btn_addNew.setObjectName("btn_addNew")
         
         self.btn_delete = QtWidgets.QPushButton(self.groupBox)
-        self.btn_delete.setGeometry(QtCore.QRect(20, 60, 91, 25))
+        self.btn_delete.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*90, self.width_ratio*135, self.height_ratio*38))
         self.btn_delete.setObjectName("btn_delete")
         
         self.btn_modify = QtWidgets.QPushButton(self.groupBox)
-        self.btn_modify.setGeometry(QtCore.QRect(20, 90, 89, 25))
+        self.btn_modify.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*135, self.width_ratio*135, self.height_ratio*38))
         self.btn_modify.setObjectName("btn_modify")
 
         self.btn_export = QtWidgets.QPushButton(self.groupBox)
-        self.btn_export.setGeometry(QtCore.QRect(20, 120, 91, 25))
+        self.btn_export.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*180, self.width_ratio*135, self.height_ratio*38))
         self.btn_export.setObjectName("btn_export")
         
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea.setGeometry(QtCore.QRect(50, 90, 329, 105))
+        self.scrollArea.setGeometry(QtCore.QRect(self.width_ratio*75, self.height_ratio*135, self.width_ratio*495, self.height_ratio*177))
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 313, 99))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, self.width_ratio*466, self.height_ratio*150))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         
         self.groupBox_overview = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_overview.setGeometry(QtCore.QRect(50, 230, 481, 141))
+        self.groupBox_overview.setGeometry(QtCore.QRect(self.width_ratio*75, self.height_ratio*345, self.width_ratio*720, self.height_ratio*210))
         self.groupBox_overview.setObjectName("groupBox_overview")
         self.groupBox_overview.setTitle("Overview")
         
         self.txt_overview = QtWidgets.QTextEdit(self.groupBox_overview)
-        self.txt_overview.setGeometry(QtCore.QRect(0, 20, 481, 121))
+        self.txt_overview.setGeometry(QtCore.QRect(0, self.height_ratio*25, self.width_ratio*720, self.height_ratio*185))
         self.txt_overview.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.txt_overview.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.txt_overview.setReadOnly(True)
         self.txt_overview.setObjectName("txt_overview")
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusBar)
         
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
 
         self.load_products_list()
         self.btn_addNew.clicked.connect(self.btn_addNew_clicked)
@@ -185,28 +181,8 @@ class Ui_MainWindow(object):
         """
                     Export the product field values into a csv file
         """
-        try:
-            file_dailog = QFileDialog()
-            default_file_extension = '.csv'
-
-            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-            if name:
-                if default_file_extension not in name:
-                    name += default_file_extension
-
-                product_info = self.product_detail_dict
-                print(product_info)
-                keys = list(product_info.keys())
-                import csv
-                with open(name, 'w+') as output_file:
-                    dict_writer = csv.DictWriter(output_file, keys)
-                    dict_writer.writeheader()
-                    dict_writer.writerow(product_info)
-
-                output_file.close()
-                QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
-        except Exception as ex:
-            QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
+        from utils.window_utils import export_file
+        export_file(window=self.temp_window, export_data=self.product_detail_dict)
 
     def search_products(self):
         """
@@ -216,7 +192,7 @@ class Ui_MainWindow(object):
         self.listWidget.clear()
         index = 0
         for item in self.products_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(1, self.productId_list[index])
@@ -295,13 +271,4 @@ class Ui_MainWindow(object):
         self.add_new_win = AddNewProductWindow(parent=self.temp_window)
         self.add_new_win.show()
         self.temp_window.hide()
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
 

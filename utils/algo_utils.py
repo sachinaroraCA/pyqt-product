@@ -20,7 +20,7 @@ def get_dimension_score(answer_list):
     """
                             Calculate the score of a dimension
     :param answer_list:
-    :return:
+    :return: dimension_score
     """
     total_marks = 0
     for answer in answer_list:
@@ -35,7 +35,7 @@ def get_dimension_score(answer_list):
 def format_answer_to_get_score(answer_list):
     """
                             Convert the answer_list (list of dictionaries) to a single dictionary
-    :param dict_list:
+    :param answer_list:
     :return:
     """
     result_dict = {}
@@ -92,7 +92,7 @@ def evaluate_dimensions(dimension_score_dict):
 
 def analyse_module(source_file, time_series_type, index):
     """
-
+                                    Algorithm to analysis of indexes
     :param source_file:
     :param time_series_type:
     :param index:

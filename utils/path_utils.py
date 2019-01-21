@@ -5,12 +5,15 @@ UTIL_DIRECTORY = os.getcwd()
 
 PROJECT_DIRECTORY = os.path.abspath(os.path.join(UTIL_DIRECTORY, os.pardir))
 
-FILES_DIRECTORY = PROJECT_DIRECTORY + '/attachment_files'
+UTIL_DIRECTORY = UTIL_DIRECTORY.replace("\\", "/")
+PROJECT_DIRECTORY = PROJECT_DIRECTORY.replace("\\", "/")
+
+FILES_DIRECTORY = os.path.join(PROJECT_DIRECTORY, 'attachment_files')
 if not os.path.exists(FILES_DIRECTORY):
     PROJECT_DIRECTORY = UTIL_DIRECTORY
-    FILES_DIRECTORY = PROJECT_DIRECTORY + '/attachment_files'
-SOURCE_FILES_DIRECTORY = PROJECT_DIRECTORY + '/source_files'
-OTHER_DIRECTORY = PROJECT_DIRECTORY + '/other_files'
+    FILES_DIRECTORY = os.path.join(PROJECT_DIRECTORY, 'attachment_files')
+SOURCE_FILES_DIRECTORY = os.path.join(PROJECT_DIRECTORY, 'source_files')
+OTHER_DIRECTORY = os.path.join(PROJECT_DIRECTORY, 'other_files')
 
 
 def create_random_string(size=30):

@@ -1,8 +1,10 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from utils.tab_utils import TabWidget
 from utils.path_utils import copy_file
 from utils.graph_utils import BAR_COLORS, create_graph_indicator
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QIcon
 
 
 class EvaluationEvaluateWindow(QMainWindow):
@@ -15,6 +17,25 @@ class EvaluationEvaluateWindow(QMainWindow):
         self.parent_win = parent
         self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
         self.ui.temp_window.setWindowTitle("Financial Product Analysis Tool - Evaluation:Evaluate")
+        self.setWindowState(QtCore.Qt.WindowMaximized)
+
+    def eventFilter(self, object, event):
+        if event.type() == QtCore.QEvent.HoverEnter:
+            if object.objectName() == "btn_attachment1":
+                self.ui.btn_attachment1_enter()
+                return True
+            if object.objectName() == "btn_attachment2":
+                self.ui.btn_attachment2_enter()
+                return True
+
+        if event.type() == QtCore.QEvent.HoverLeave:
+            if object.objectName() == "btn_attachment1":
+                self.ui.btn_attachment1_leave()
+                return True
+            if object.objectName() == "btn_attachment2":
+                self.ui.btn_attachment2_leave()
+                return True
+        return False
 
 
 class Ui_MainWindow(object):
@@ -23,8 +44,10 @@ class Ui_MainWindow(object):
     """
     def __init__(self, MainWindow, selected_product_details):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(580)
-        MainWindow.setFixedWidth(640)
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(640, 580)
+        MainWindow.setMinimumHeight(self.height_ratio*580)
+        MainWindow.setMinimumWidth(self.width_ratio*640)
         self.temp_window = MainWindow
         self.selected_product_details = selected_product_details
         self.selected_productId = None
@@ -52,7 +75,6 @@ class Ui_MainWindow(object):
                     question_index += 1
 
                     for option_index in range(0, 5):
-                        print(self.selected_product_details, tab_index, question_index)
                         if self.selected_product_details["categorya"] == '1' and tab_index == 6 and question_index == 7:
                             disable = True
                         elif self.selected_product_details["categorya"] == '2' and tab_index == 6 and question_index == 6:
@@ -76,34 +98,34 @@ class Ui_MainWindow(object):
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.win = pg.PlotWidget()
+        self.graph_win = pg.PlotWidget()
 
         self.bg = pg.BarGraphItem(x=[], height=[], width=0.5, brushes=BAR_COLORS)
-        self.win.setXRange(0.5, 9.5)
-        self.win.addItem(self.bg)
+        self.graph_win.setXRange(0.5, 9.5)
+        self.graph_win.addItem(self.bg)
 
         # set the layout
         self.graph_layout = QtWidgets.QVBoxLayout()
-        self.graph_layout.setGeometry(QtCore.QRect(30, 30, 450, 251))
-        self.graph_layout.addWidget(self.win)
+        self.graph_layout.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*30, self.width_ratio*450, self.height_ratio*251))
+        self.graph_layout.addWidget(self.graph_win)
 
         self.graph_layout2 = QtWidgets.QVBoxLayout()
-        self.graph_layout2.setGeometry(QtCore.QRect(30, 260, 450, 100))
+        self.graph_layout2.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*260, self.width_ratio*450, self.height_ratio*100))
         # self.graph_layout.addLayout(self.graph_layout2)
 
         self.groupBox_3 = QtWidgets.QGroupBox(self.tab_overview)
-        self.groupBox_3.setGeometry(QtCore.QRect(30, 260, 450, 55))
+        self.groupBox_3.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*260, self.width_ratio*450, self.height_ratio*55))
         self.groupBox_3.setLayout(self.graph_layout2)
         self.groupBox_3.setStyleSheet("background-color:white;")
 
         self.groupBox_2 = QtWidgets.QGroupBox(self.tab_overview)
-        self.groupBox_2.setGeometry(QtCore.QRect(30, 30, 450, 251))
+        self.groupBox_2.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*30, self.width_ratio*450, self.height_ratio*251))
         self.groupBox_2.setObjectName("groupBox_2")
         self.groupBox_2.setLayout(self.graph_layout)
         """                            *********         """
 
         self.lbl_graph = QtWidgets.QLabel(self.groupBox_2)
-        self.lbl_graph.setGeometry(QtCore.QRect(10, 30, 500, 17))
+        self.lbl_graph.setGeometry(QtCore.QRect(self.width_ratio*10, self.height_ratio*30, self.width_ratio*500, self.height_ratio*17))
         self.lbl_graph.setObjectName("lbl_graph")
         self.lbl_graph.setText("Not Evaluated Yet")
 
@@ -111,36 +133,38 @@ class Ui_MainWindow(object):
         self.graph_layout.addLayout(self.graph_layout2)
 
         self.btn_attachment1 = QtWidgets.QPushButton(self.tab_overview)
-        self.btn_attachment1.setGeometry(QtCore.QRect(70, 370, 121, 51))
+        self.btn_attachment1.setGeometry(QtCore.QRect(self.width_ratio*70, self.height_ratio*370, self.width_ratio*121, self.height_ratio*51))
         self.btn_attachment1.setObjectName("btn_attachment1")
+        self.btn_attachment1.installEventFilter(self.temp_window)
         self.btn_attachment2 = QtWidgets.QPushButton(self.tab_overview)
-        self.btn_attachment2.setGeometry(QtCore.QRect(300, 370, 121, 51))
         self.btn_attachment2.setObjectName("btn_attachment2")
+        self.btn_attachment2.setGeometry(QtCore.QRect(self.width_ratio*300, self.height_ratio*370, self.width_ratio*121, self.height_ratio*51))
+        self.btn_attachment2.installEventFilter(self.temp_window)
         self.tab.addTab(self.tab_overview, "")
 
         """"__________________________________________****************_____________________________________________"""
 
         self.btn_save = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_save.setGeometry(QtCore.QRect(370, 540, 100, 25))
+        self.btn_save.setGeometry(QtCore.QRect(self.width_ratio*370, self.height_ratio*540, self.width_ratio*100, self.height_ratio*25))
         self.btn_save.setObjectName("btn_save")
         self.btn_return = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_return.setGeometry(QtCore.QRect(490, 540, 100, 25))
+        self.btn_return.setGeometry(QtCore.QRect(self.width_ratio*490, self.height_ratio*540, self.width_ratio*100, self.height_ratio*25))
         self.btn_return.setObjectName("btn_return")
         self.btn_reset = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_reset.setGeometry(QtCore.QRect(250, 540, 100, 25))
+        self.btn_reset.setGeometry(QtCore.QRect(self.width_ratio*250, self.height_ratio*540, self.width_ratio*100, self.height_ratio*25))
         self.btn_reset.setObjectName("btn_reset")
         self.btn_back = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_back.setGeometry(QtCore.QRect(130, 540, 100, 25))
+        self.btn_back.setGeometry(QtCore.QRect(self.width_ratio*130, self.height_ratio*540, self.width_ratio*100, self.height_ratio*25))
         self.btn_back.setObjectName("btn_back")
         self.lbl_prduct = QtWidgets.QLabel(self.centralwidget)
-        self.lbl_prduct.setGeometry(QtCore.QRect(15, 5, 550, 17))
+        self.lbl_prduct.setGeometry(QtCore.QRect(self.width_ratio*15, self.height_ratio*5, self.width_ratio*550, self.height_ratio*17))
         self.lbl_prduct.setObjectName("lbl_prduct")
 
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusBar)
+
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 22))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
         self.set_window_actions()
         self.retranslateUi()
         self.tab.setCurrentIndex(0)
@@ -179,17 +203,12 @@ class Ui_MainWindow(object):
                                             UPLOAD ATTACHMENT 1
         :return:
         """
-        from PyQt5.QtCore import QSize
-        from PyQt5.QtGui import QIcon
         file_dailog = QFileDialog(self.temp_window)
-        file_path = file_dailog.getOpenFileName(self.temp_window)[0]
+        self.attachment1_path = file_dailog.getOpenFileName(self.temp_window)[0]
+        file_path = self.attachment1_path
         if file_path:
-            icon = QIcon(file_path)
             self.attachment1_path = copy_file(file_path, dest="attachment")
             self.btn_attachment1.setAutoFillBackground(True)
-            self.btn_attachment1.setIconSize(QSize(self.btn_attachment1.width(), self.btn_attachment1.height()))
-
-            self.btn_attachment1.setIcon(icon)
             self.btn_attachment1.setText(file_path.split("/")[-1])
             self.btn_attachment1.show()
 
@@ -198,16 +217,12 @@ class Ui_MainWindow(object):
                                             UPLOAD ATTACHMENT 2
         :return:
         """
-        from PyQt5.QtCore import QSize
-        from PyQt5.QtGui import QIcon
         file_dailog = QFileDialog(self.temp_window)
-        file_path = file_dailog.getOpenFileName(self.temp_window)[0]
+        self.attachment2_path = file_dailog.getOpenFileName(self.temp_window)[0]
+        file_path = self.attachment2_path
         if file_path:
-            icon = QIcon(file_path)
             self.attachment2_path = copy_file(file_path, dest="attachment")
             self.btn_attachment2.setAutoFillBackground(True)
-            self.btn_attachment2.setIconSize(QSize(self.btn_attachment2.width(), self.btn_attachment2.height()))
-            self.btn_attachment2.setIcon(icon)
             self.btn_attachment2.setText(file_path.split("/")[-1])
             self.btn_attachment2.show()
 
@@ -249,7 +264,7 @@ class Ui_MainWindow(object):
         :return: tab
         """
         tab = TabWidget(self.centralwidget)
-        tab.setGeometry(QtCore.QRect(25, 30, 700, 500))
+        tab.setGeometry(QtCore.QRect(self.width_ratio*25, self.height_ratio*30, self.width_ratio*700, self.height_ratio*500))
         tab.setLayoutDirection(QtCore.Qt.LeftToRight)
         tab.setTabPosition(QtWidgets.QTabWidget.West)
         tab.setElideMode(QtCore.Qt.ElideNone)
@@ -276,7 +291,7 @@ class Ui_MainWindow(object):
         :return:
         """
         question_box = QtWidgets.QGroupBox(tab_dimension)
-        question_box.setGeometry(QtCore.QRect(40, 10 + (60 * position), 450, 50))
+        question_box.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*(10 + (60 * position)), self.width_ratio*450, self.height_ratio*50))
         question_box.setObjectName(object_name)
         question_box.setTitle(question)
         QtWidgets.QButtonGroup(question_box)
@@ -293,7 +308,7 @@ class Ui_MainWindow(object):
         :return: option
         """
         option = QtWidgets.QRadioButton(question_box)
-        option.setGeometry(QtCore.QRect(10 + (90 * index), 25, 81, 23))
+        option.setGeometry(QtCore.QRect(self.width_ratio*(10 + (90 * index)), self.height_ratio*25, self.width_ratio*81, self.height_ratio*23))
         option.setObjectName(object_name)
         option.setText(text)
         question_box.children()[0].addButton(option)
@@ -317,6 +332,7 @@ class Ui_MainWindow(object):
                     Save the Evaluation in the fpat_evaluation table
         :return:
         """
+        self.statusBar.showMessage("Saving evaluation...", 2000)
         tabs = self.tab.children()[0].children()
         answer_list = []
         self.create_evaluation(self.attachment1_path, self.attachment2_path)
@@ -337,6 +353,7 @@ class Ui_MainWindow(object):
         self.btn_reset.setDisabled(True)
         self.btn_save.setDisabled(True)
         self.btn_return.setDisabled(True)
+        self.statusBar.showMessage("", 2000)
         QtWidgets.QMessageBox.about(self.temp_window, "Message", 'Evaluation saved successfully !!!')
 
     def save_answers(self, question, answer, dimension):
@@ -376,12 +393,13 @@ class Ui_MainWindow(object):
         print("x", x, "y", y)
         import pyqtgraph as pg
         # create bar chart
-        self.win.removeItem(self.bg)
+        self.graph_win.removeItem(self.bg)
         self.bg = pg.BarGraphItem(x=x, height=y, width=0.5, brushes=BAR_COLORS)
-        self.win.addItem(self.bg)
-        self.win.setXRange(0.5, 9.5)
-        self.win.setYRange(0, 100)
-        self.graph_layout.addWidget(self.win)
+        self.graph_win.addItem(self.bg)
+        self.graph_win.setXRange(0.5, 9.5)
+        self.graph_win.setYRange(0, 100)
+        self.graph_win.getPlotItem().getAxis('bottom').setTicks([list(zip(range(1, len(y)+1), y))])
+        self.graph_layout.addWidget(self.graph_win)
         self.groupBox_2.setLayout(self.graph_layout)
 
     def tab_overview_selected(self):
@@ -392,17 +410,13 @@ class Ui_MainWindow(object):
         if selected_tab.objectName() == "tab_overview":
             tabs = self.tab.children()[0].children()
             answers ={}
-            dimension_scores ={}
-            for tab in tabs:
-                if tab and tab.objectName() == "tab_overview":
-                    pass
 
-                elif tab and "tab_" in tab.objectName():
+            for tab in tabs:
+                if tab and tab.objectName() != "tab_overview" and "tab_" in tab.objectName():
                     tab_name = str(tab.objectName())
                     dimension = int((tab_name).replace("tab_", ""))
                     answer_list = []
                     for quesbox in tab.children():
-                        question = quesbox.title()
                         for option in quesbox.children()[1:]:
                             if option.isChecked():
                                 answer = int(option.text())
@@ -410,21 +424,90 @@ class Ui_MainWindow(object):
                     answers.update({dimension: answer_list})
 
             from utils.algo_utils import get_dimension_score
-            for dimension, answers in answers.items():
-                d_score = get_dimension_score(answers)
-                dimension_scores.update({dimension: d_score})
+            dimension_scores = {}
+            for item in answers.items():
+                d_score = get_dimension_score(item[1])
+                dimension_scores.update({item[0]: d_score})
 
-            x= [item for item in range(1,10)]
-            y= [dimension_scores[item] for item in x]
+            x = [item for item in range(1, 10)]
+            y = [dimension_scores[item] for item in x]
             self.create_graph(x=x, y=y)
             self.lbl_graph.setText("")
 
+    def load_record(self):
+        tabs = self.tab.children()[0].children()
+        from utils.database_utils import DatabaseConnect
+        db = DatabaseConnect()
+        answer_list = db.get_answers_by_evaluation(self.selected_productId)
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+        attachments = db.get_attachments(window=self.temp_window, product_id=self.selected_productId)
+        if attachments:
+            if attachments["attachment_one"] is not None and attachments["attachment_one"] != "":
+                self.attachment1_path = attachments["attachment_one"]
+                file_path = self.attachment1_path
+                self.btn_attachment1.setAutoFillBackground(True)
+                self.btn_attachment1.setText(file_path.split("/")[-1][:10]+"..")
+                self.btn_attachment1.show()
 
+            if attachments["attachment_two"] is not None and attachments["attachment_two"] != "":
+                self.attachment2_path = attachments["attachment_two"]
+                file_path = self.attachment2_path
+
+                if file_path:
+                    self.btn_attachment2.setAutoFillBackground(True)
+                    self.btn_attachment2.setText(file_path.split("/")[-1][:10]+"..")
+                    self.btn_attachment2.show()
+
+        for tab in tabs:
+            if tab and "tab_" in tab.objectName() and tab.objectName() != "tab_overview":
+                tab_name = str(tab.objectName())
+                dimension = int((tab_name).replace("tab_", ""))
+
+                for quesbox in tab.children():
+
+                    for d in answer_list:
+                        if d["question"] == quesbox.title() and d["dimension"] == dimension:
+                            final_answer = str(d["answer"])
+
+                            for option in quesbox.children()[1:]:
+                                if str(option.text()) == str(final_answer):
+                                    option.setChecked(True)
+                    quesbox.setDisabled(True)
+
+        self.btn_reset.setDisabled(True)
+        self.btn_save.setDisabled(True)
+        self.btn_return.setDisabled(True)
+
+    def btn_attachment1_leave(self):
+        if self.attachment1_path:
+            file_path = self.attachment1_path
+            self.btn_attachment1.setText(file_path.split("/")[-1][:10] + "..")
+            self.btn_attachment1.setIcon(QIcon(""))
+            self.btn_attachment1.show()
+
+    def btn_attachment1_enter(self):
+        if self.attachment1_path:
+            file_path = self.attachment1_path
+            icon = QIcon(file_path)
+            self.btn_attachment1.setText("")
+            self.btn_attachment1.setAutoFillBackground(True)
+            self.btn_attachment1.setIconSize(QSize(self.btn_attachment1.width(), self.btn_attachment1.height()))
+            self.btn_attachment1.setIcon(icon)
+            self.btn_attachment1.show()
+
+    def btn_attachment2_leave(self):
+        if self.attachment2_path:
+            file_path = self.attachment2_path
+            self.btn_attachment2.setText(file_path.split("/")[-1][:10] + "..")
+            self.btn_attachment2.setIcon(QIcon(""))
+            self.btn_attachment2.show()
+
+    def btn_attachment2_enter(self):
+        if self.attachment2_path:
+            file_path = self.attachment2_path
+            icon = QIcon(file_path)
+            self.btn_attachment2.setText("")
+            self.btn_attachment2.setAutoFillBackground(True)
+            self.btn_attachment2.setIconSize(QSize(self.btn_attachment2.width(), self.btn_attachment2.height()))
+            self.btn_attachment2.setIcon(icon)
+            self.btn_attachment2.show()

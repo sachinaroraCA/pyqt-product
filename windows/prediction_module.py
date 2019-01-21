@@ -12,8 +12,9 @@ class PredictionWindow(QtWidgets.QMainWindow):
     """
     def __init__(self, parent=None):
         super(PredictionWindow, self).__init__(parent)
-        self.setWindowTitle("Financial Product Analysis Tool - Prediction")
         self.ui = Ui_MainWindow(self)
+        self.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
+        self.setWindowState(QtCore.Qt.WindowMaximized)
 
 
 class Ui_MainWindow(object):
@@ -22,8 +23,10 @@ class Ui_MainWindow(object):
     """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(565)
-        MainWindow.setFixedWidth(700)
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(700, 565)
+        MainWindow.setMinimumHeight(self.height_ratio*565)
+        MainWindow.setMinimumWidth(self.width_ratio*700)
         self.temp_window = MainWindow
         self.selected_timeseries = None
         self.selected_model = None
@@ -31,211 +34,210 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
 
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(20, 50, 311, 141))
+        self.groupBox.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*50, self.width_ratio*311, self.height_ratio*141))
         self.groupBox.setObjectName("groupBox")
         self.txt_timeseries = QtWidgets.QLineEdit(self.groupBox)
-        self.txt_timeseries.setGeometry(QtCore.QRect(0, 20, 311, 25))
+        self.txt_timeseries.setGeometry(QtCore.QRect(0, self.height_ratio*20, self.width_ratio*311, self.height_ratio*25))
         self.txt_timeseries.setObjectName("txt_timeseries")
         self.listWidget_timeseries = QtWidgets.QListWidget(self.groupBox)
-        self.listWidget_timeseries.setGeometry(QtCore.QRect(-5, 50, 311, 91))
+        self.listWidget_timeseries.setGeometry(QtCore.QRect(self.width_ratio*-5, self.height_ratio*50, self.width_ratio*311, self.height_ratio*91))
         self.listWidget_timeseries.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.listWidget_timeseries.setObjectName("listWidget_timeseries")
 
         self.groupBox_4 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_4.setGeometry(QtCore.QRect(350, 50, 311, 141))
+        self.groupBox_4.setGeometry(QtCore.QRect(self.width_ratio*350, self.height_ratio*50, self.width_ratio*311, self.height_ratio*141))
         self.groupBox_4.setObjectName("groupBox_4")
         self.txt_model = QtWidgets.QLineEdit(self.groupBox_4)
-        self.txt_model.setGeometry(QtCore.QRect(0, 20, 311, 25))
+        self.txt_model.setGeometry(QtCore.QRect(0, self.height_ratio*20, self.width_ratio*311, self.height_ratio*25))
         self.txt_model.setObjectName("txt_model")
         self.listWidget_model = QtWidgets.QListWidget(self.groupBox_4)
-        self.listWidget_model.setGeometry(QtCore.QRect(-5, 50, 311, 91))
+        self.listWidget_model.setGeometry(QtCore.QRect(self.width_ratio*-5, self.height_ratio*50, self.width_ratio*311, self.height_ratio*91))
         self.listWidget_model.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.listWidget_model.setObjectName("listWidget_model")
 
         self.groupBox_prediction_parameter = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_prediction_parameter.setGeometry(QtCore.QRect(30, 210, 601, 61))
+        self.groupBox_prediction_parameter.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*210, self.width_ratio*601, self.height_ratio*61))
         self.groupBox_prediction_parameter.setObjectName("groupBox_prediction_parameter")
         self.label_4 = QtWidgets.QLabel(self.groupBox_prediction_parameter)
-        self.label_4.setGeometry(QtCore.QRect(10, 30, 81, 17))
+        self.label_4.setGeometry(QtCore.QRect(self.width_ratio*10, self.height_ratio*30, self.width_ratio*81, self.height_ratio*17))
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(self.groupBox_prediction_parameter)
-        self.label_5.setGeometry(QtCore.QRect(200, 30, 81, 17))
+        self.label_5.setGeometry(QtCore.QRect(self.width_ratio*200, self.height_ratio*30, self.width_ratio*81, self.height_ratio*17))
         self.label_5.setObjectName("label_5")
         self.label_6 = QtWidgets.QLabel(self.groupBox_prediction_parameter)
-        self.label_6.setGeometry(QtCore.QRect(400, 30, 81, 17))
+        self.label_6.setGeometry(QtCore.QRect(self.width_ratio*400, self.height_ratio*30, self.width_ratio*81, self.height_ratio*17))
         self.label_6.setObjectName("label_6")
         self.txt_param1 = QtWidgets.QLineEdit(self.groupBox_prediction_parameter)
-        self.txt_param1.setGeometry(QtCore.QRect(90, 30, 101, 25))
+        self.txt_param1.setGeometry(QtCore.QRect(self.width_ratio*90, self.height_ratio*30, self.width_ratio*101, self.height_ratio*25))
         self.txt_param1.setReadOnly(True)
         self.txt_param1.setObjectName("txt_param1")
         self.txt_param2 = QtWidgets.QLineEdit(self.groupBox_prediction_parameter)
-        self.txt_param2.setGeometry(QtCore.QRect(280, 30, 101, 25))
+        self.txt_param2.setGeometry(QtCore.QRect(self.width_ratio*280, self.height_ratio*30, self.width_ratio*101, self.height_ratio*25))
         self.txt_param2.setReadOnly(True)
         self.txt_param2.setObjectName("txt_param2")
         self.txt_param3 = QtWidgets.QLineEdit(self.groupBox_prediction_parameter)
-        self.txt_param3.setGeometry(QtCore.QRect(482, 30, 111, 25))
+        self.txt_param3.setGeometry(QtCore.QRect(self.width_ratio*482, self.height_ratio*30, self.width_ratio*111, self.height_ratio*25))
         self.txt_param3.setReadOnly(True)
         self.txt_param3.setObjectName("txt_param3")
 
         self.btn_evaluate_prediction = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_evaluate_prediction.setGeometry(QtCore.QRect(30, 300, 291, 25))
+        self.btn_evaluate_prediction.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*300, self.width_ratio*291, self.height_ratio*25))
         self.btn_evaluate_prediction.setObjectName("btn_evaluate_prediction")
         self.btn_export_prediction = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_export_prediction.setGeometry(QtCore.QRect(340, 300, 291, 25))
+        self.btn_export_prediction.setGeometry(QtCore.QRect(self.width_ratio*340, self.height_ratio*300, self.width_ratio*291, self.height_ratio*25))
         self.btn_export_prediction.setObjectName("btn_export_prediction")
         self.btn_return = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_return.setGeometry(QtCore.QRect(480, 490, 151, 25))
+        self.btn_return.setGeometry(QtCore.QRect(self.width_ratio*480, self.height_ratio*490, self.width_ratio*151, self.height_ratio*25))
         self.btn_return.setObjectName("btn_return")
 
         self.groupBox_model_evaluation = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_model_evaluation.setGeometry(QtCore.QRect(30, 330, 601, 151))
+        self.groupBox_model_evaluation.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*330, self.width_ratio*601, self.height_ratio*151))
         self.groupBox_model_evaluation.setObjectName("groupBox_model_evaluation")
 
         self.txt_pe1 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe1.setGeometry(QtCore.QRect(60, 30, 71, 25))
+        self.txt_pe1.setGeometry(QtCore.QRect(self.width_ratio*60, self.height_ratio*30, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe1.setReadOnly(True)
         self.txt_pe1.setObjectName("txt_pe1")
 
         self.txt_pe2 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe2.setGeometry(QtCore.QRect(60, 60, 71, 25))
+        self.txt_pe2.setGeometry(QtCore.QRect(self.width_ratio*60, self.height_ratio*60, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe2.setReadOnly(True)
         self.txt_pe2.setObjectName("txt_pe2")
 
         self.txt_pe3 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe3.setGeometry(QtCore.QRect(60, 90, 71, 25))
+        self.txt_pe3.setGeometry(QtCore.QRect(self.width_ratio*60, self.height_ratio*90, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe3.setReadOnly(True)
         self.txt_pe3.setObjectName("txt_pe3")
 
         self.txt_pe4 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe4.setGeometry(QtCore.QRect(60, 120, 71, 25))
+        self.txt_pe4.setGeometry(QtCore.QRect(self.width_ratio*60, self.height_ratio*120, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe4.setReadOnly(True)
         self.txt_pe4.setObjectName("txt_pe4")
 
         self.txt_pe5 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe5.setGeometry(QtCore.QRect(210, 30, 71, 25))
+        self.txt_pe5.setGeometry(QtCore.QRect(self.width_ratio*210, self.height_ratio*30, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe5.setReadOnly(True)
         self.txt_pe5.setObjectName("txt_pe5")
 
         self.txt_pe6 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe6.setGeometry(QtCore.QRect(210, 60, 71, 25))
+        self.txt_pe6.setGeometry(QtCore.QRect(self.width_ratio*210, self.height_ratio*60, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe6.setReadOnly(True)
         self.txt_pe6.setObjectName("txt_pe6")
 
         self.txt_pe7 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe7.setGeometry(QtCore.QRect(210, 90, 71, 25))
+        self.txt_pe7.setGeometry(QtCore.QRect(self.width_ratio*210, self.height_ratio*90, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe7.setReadOnly(True)
         self.txt_pe7.setObjectName("txt_pe7")
 
         self.txt_pe8 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe8.setGeometry(QtCore.QRect(210, 120, 71, 25))
+        self.txt_pe8.setGeometry(QtCore.QRect(self.width_ratio*210, self.height_ratio*120, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe8.setReadOnly(True)
         self.txt_pe8.setObjectName("txt_pe8")
 
         self.txt_pe9 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe9.setGeometry(QtCore.QRect(360, 30, 71, 25))
+        self.txt_pe9.setGeometry(QtCore.QRect(self.width_ratio*360, self.height_ratio*30, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe9.setReadOnly(True)
         self.txt_pe9.setObjectName("txt_pe9")
 
         self.txt_pe10 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe10.setGeometry(QtCore.QRect(360, 60, 71, 25))
+        self.txt_pe10.setGeometry(QtCore.QRect(self.width_ratio*360, self.height_ratio*60, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe10.setReadOnly(True)
         self.txt_pe10.setObjectName("txt_pe10")
 
         self.txt_pe11 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe11.setGeometry(QtCore.QRect(360, 90, 71, 25))
+        self.txt_pe11.setGeometry(QtCore.QRect(self.width_ratio*360, self.height_ratio*90, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe11.setReadOnly(True)
         self.txt_pe11.setObjectName("txt_pe11")
 
         self.txt_pe12 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe12.setGeometry(QtCore.QRect(360, 120, 71, 25))
+        self.txt_pe12.setGeometry(QtCore.QRect(self.width_ratio*360, self.height_ratio*120, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe12.setReadOnly(True)
         self.txt_pe12.setObjectName("txt_pe12")
 
         self.txt_pe13 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe13.setGeometry(QtCore.QRect(510, 30, 71, 25))
+        self.txt_pe13.setGeometry(QtCore.QRect(self.width_ratio*510, self.height_ratio*30, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe13.setReadOnly(True)
         self.txt_pe13.setObjectName("txt_pe13")
 
         self.txt_pe14 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe14.setGeometry(QtCore.QRect(510, 60, 71, 25))
+        self.txt_pe14.setGeometry(QtCore.QRect(self.width_ratio*510, self.height_ratio*60, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe14.setReadOnly(True)
         self.txt_pe14.setObjectName("txt_pe14")
 
         self.txt_pe15 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe15.setGeometry(QtCore.QRect(510, 90, 71, 25))
+        self.txt_pe15.setGeometry(QtCore.QRect(self.width_ratio*510, self.height_ratio*90, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe15.setReadOnly(True)
         self.txt_pe15.setObjectName("txt_pe15")
 
         self.txt_pe16 = QtWidgets.QLineEdit(self.groupBox_model_evaluation)
-        self.txt_pe16.setGeometry(QtCore.QRect(510, 120, 71, 25))
+        self.txt_pe16.setGeometry(QtCore.QRect(self.width_ratio*510, self.height_ratio*120, self.width_ratio*71, self.height_ratio*25))
         self.txt_pe16.setReadOnly(True)
         self.txt_pe16.setObjectName("txt_pe16")
 
         self.label_10 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_10.setGeometry(QtCore.QRect(20, 120, 41, 17))
+        self.label_10.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*120, self.width_ratio*41, self.height_ratio*17))
         self.label_10.setObjectName("label_10")
 
         self.label_13 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_13.setGeometry(QtCore.QRect(170, 120, 41, 17))
+        self.label_13.setGeometry(QtCore.QRect(self.width_ratio*170, self.height_ratio*120, self.width_ratio*41, self.height_ratio*17))
         self.label_13.setObjectName("label_13")
 
         self.label_9 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_9.setGeometry(QtCore.QRect(20, 90, 41, 17))
+        self.label_9.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*90, self.width_ratio*41, self.height_ratio*17))
         self.label_9.setObjectName("label_9")
         self.label_14 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_14.setGeometry(QtCore.QRect(170, 90, 41, 17))
+        self.label_14.setGeometry(QtCore.QRect(self.width_ratio*170, self.height_ratio*90, self.width_ratio*41, self.height_ratio*17))
         self.label_14.setObjectName("label_14")
         self.label_11 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_11.setGeometry(QtCore.QRect(170, 60, 41, 17))
+        self.label_11.setGeometry(QtCore.QRect(self.width_ratio*170, self.height_ratio*60, self.width_ratio*41, self.height_ratio*17))
         self.label_11.setObjectName("label_11")
         self.label_7 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_7.setGeometry(QtCore.QRect(20, 30, 41, 17))
+        self.label_7.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*30, self.width_ratio*41, self.height_ratio*17))
         self.label_7.setObjectName("label_7")
         self.label_8 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_8.setGeometry(QtCore.QRect(20, 60, 41, 17))
+        self.label_8.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*60, self.width_ratio*41, self.height_ratio*17))
         self.label_8.setObjectName("label_8")
 
-
-
         self.label_12 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_12.setGeometry(QtCore.QRect(170, 30, 41, 17))
+        self.label_12.setGeometry(QtCore.QRect(self.width_ratio*170, self.height_ratio*30, self.width_ratio*41, self.height_ratio*17))
         self.label_12.setObjectName("label_12")
         self.label_15 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_15.setGeometry(QtCore.QRect(310, 60, 41, 17))
+        self.label_15.setGeometry(QtCore.QRect(self.width_ratio*310, self.height_ratio*60, self.width_ratio*41, self.height_ratio*17))
         self.label_15.setObjectName("label_15")
         self.label_17 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_17.setGeometry(QtCore.QRect(310, 120, 41, 17))
+        self.label_17.setGeometry(QtCore.QRect(self.width_ratio*310, self.height_ratio*120, self.width_ratio*41, self.height_ratio*17))
         self.label_17.setObjectName("label_17")
         self.label_18 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_18.setGeometry(QtCore.QRect(310, 90, 41, 17))
+        self.label_18.setGeometry(QtCore.QRect(self.width_ratio*310, self.height_ratio*90, self.width_ratio*41, self.height_ratio*17))
         self.label_18.setObjectName("label_18")
         self.label_16 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_16.setGeometry(QtCore.QRect(310, 30, 41, 17))
+        self.label_16.setGeometry(QtCore.QRect(self.width_ratio*310, self.height_ratio*30, self.width_ratio*41, self.height_ratio*17))
         self.label_16.setObjectName("label_16")
         self.label_20 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_20.setGeometry(QtCore.QRect(460, 30, 41, 17))
+        self.label_20.setGeometry(QtCore.QRect(self.width_ratio*460, self.height_ratio*30, self.width_ratio*41, self.height_ratio*17))
         self.label_20.setObjectName("label_20")
         self.label_22 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_22.setGeometry(QtCore.QRect(460, 90, 41, 17))
+        self.label_22.setGeometry(QtCore.QRect(self.width_ratio*460, self.height_ratio*90, self.width_ratio*41, self.height_ratio*17))
         self.label_22.setObjectName("label_22")
         self.label_21 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_21.setGeometry(QtCore.QRect(460, 120, 41, 17))
+        self.label_21.setGeometry(QtCore.QRect(self.width_ratio*460, self.height_ratio*120, self.width_ratio*41, self.height_ratio*17))
         self.label_21.setObjectName("label_21")
         self.label_19 = QtWidgets.QLabel(self.groupBox_model_evaluation)
-        self.label_19.setGeometry(QtCore.QRect(460, 60, 41, 17))
+        self.label_19.setGeometry(QtCore.QRect(self.width_ratio*460, self.height_ratio*60, self.width_ratio*41, self.height_ratio*17))
         self.label_19.setObjectName("label_19")
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 692, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, self.width_ratio*692, self.height_ratio*22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusBar)
 
         self.timeseries_list_view()
         self.models_list_view()
+        self.prediction_evaluated = None
 
         self.txt_timeseries.textChanged.connect(self.timeseriesfilterClicked)
         self.txt_model.textChanged.connect(self.search_models)
@@ -252,7 +254,7 @@ class Ui_MainWindow(object):
         :param MainWindow:
         """
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Financial Product Analysis Tool - Prediction"))
         self.groupBox.setTitle(_translate("MainWindow", "Time Series to be predicted : "))
         self.txt_timeseries.setPlaceholderText(_translate("MainWindow", "  Search"))
         self.groupBox_prediction_parameter.setTitle(_translate("MainWindow", "Prediction Parameters :"))
@@ -290,32 +292,40 @@ class Ui_MainWindow(object):
                     Export the Prediction data as a CSV file
         """
         try:
-            prediction_data = ({"Time Series": self.selected_timeseries,
+            initial_data = ({"Time Series": self.selected_timeseries,
                                 "Model": self.selected_model,
                                 "Param 1": self.param_one.text(),
                                 "Param 2": self.param_two.text(),
                                 "Param 3": self.param_three.text()})
-            prediction_data.update(PREDICTION_DATA)
+            initial_data.update(PREDICTION_DATA)
+            col1 = list(initial_data.keys())
+            col2 = list(initial_data.values())
 
-            file_dailog = QtWidgets.QFileDialog()
-            default_file_extension = '.csv'
+            from utils.database_utils import DatabaseConnect
+            db = DatabaseConnect()
+            timeseries_data = db.get_timeseries_details(self.selected_timeseriesId, self.temp_window)
+            source_file = timeseries_data["source_file"]
 
-            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-            if name:
-                if default_file_extension not in name:
-                    name += default_file_extension
+            import pandas as pd
+            prediction_data = {}
+            source_file_data = pd.read_excel(source_file, header=None).to_dict()
+            if source_file_data:
+                dates = dict(list(source_file_data.values())[0]).values()
+                values = self.time_series_prediction(dict(list(source_file_data.values())[1]).values())
+                col1.extend([None, "Date"])
+                col2.extend([None, "Predicted-values"])
 
-                keys = list(prediction_data.keys())
-                import csv
-                with open(name, 'w+') as output_file:
-                    dict_writer = csv.DictWriter(output_file, keys)
-                    dict_writer.writeheader()
-                    dict_writer.writerow(prediction_data)
+                col1.extend(list(dates))
+                col2.extend(list(values))
+                prediction_data.update({"Column 1": col1, "Column 2": col2})
 
-                output_file.close()
-                QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
+            from utils.window_utils import export_file
+            export_file(window=self.temp_window, export_data=prediction_data)
         except Exception as ex:
             QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
+
+    def time_series_prediction(self, time_series):
+        return [item*3 for item in list(time_series)]
 
     def btn_evaluate_prediction_clicked(self):
         """
@@ -342,6 +352,7 @@ class Ui_MainWindow(object):
             self.txt_pe14.setText(PREDICTION_DATA["PE14"])
             self.txt_pe15.setText(PREDICTION_DATA["PE15"])
             self.txt_pe16.setText(PREDICTION_DATA["PE16"])
+            self.prediction_evaluated = True
         else:
             QtWidgets.QMessageBox.about(self.temp_window, "message",
                                         "Select a model and a time-series !!!")
@@ -350,12 +361,13 @@ class Ui_MainWindow(object):
         """
                     Close current window
         """
-        buttonReply = QtWidgets.QMessageBox.question(self.temp_window, "message",
-                                       "Do you want to export prediction data?",
+        if self.prediction_evaluated:
+            buttonReply = QtWidgets.QMessageBox.question(self.temp_window, "message",
+                                                         "Do you want to export prediction data?",
                                                          QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                                                          QtWidgets.QMessageBox.No)
-        if buttonReply == QtWidgets.QMessageBox.Yes:
-            self.btn_evaluate_prediction_clicked()
+            if buttonReply == QtWidgets.QMessageBox.Yes:
+                self.btn_evaluate_prediction_clicked()
         self.temp_window.hide()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -396,7 +408,7 @@ class Ui_MainWindow(object):
         self.listWidget_timeseries.clear()
         index = 0
         for item in self.timeseries_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QtWidgets.QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(1, self.timeseriesId_list[index])
@@ -410,7 +422,7 @@ class Ui_MainWindow(object):
 
     def get_model_details(self, id):
         """
-                get details of the model from the database.
+                get details of the Time series from the database.
         :return: string, dictionary
         """
         from utils.database_utils import DatabaseConnect
@@ -420,7 +432,7 @@ class Ui_MainWindow(object):
 
     def models_list_view(self):
         """
-                        Add the models into the list widget of the window
+                        add the models into the list widget of the window
         """
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
@@ -437,7 +449,7 @@ class Ui_MainWindow(object):
 
     def model_list_item_event(self, item):
         """
-                Selected a model from the model list and get 3 params from Model
+                Selected a model from the product list. So display model details in Overview
         :param item:
         """
         print(repr(item.text()))
@@ -457,7 +469,7 @@ class Ui_MainWindow(object):
         self.listWidget_model.clear()
         index = 0
         for item in self.models_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QtWidgets.QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(1, self.modelId_list[index])

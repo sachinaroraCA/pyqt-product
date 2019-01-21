@@ -6,10 +6,13 @@ class ProductModulesWindow(QMainWindow):
     """
                 Main class of the Main module
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, screen_resolution=None):
         super(ProductModulesWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Modules")
+        self.screen_resolution = screen_resolution
         self.ui = Ui_ProductModulesWindow(self)
+        self.setWindowState(QtCore.Qt.WindowMaximized)
+        self.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
 
 
 class Ui_ProductModulesWindow(object):
@@ -18,46 +21,49 @@ class Ui_ProductModulesWindow(object):
     """
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(450)
-        MainWindow.setFixedWidth(600)
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(600, 450)
+
+        MainWindow.setMinimumHeight(self.height_ratio*450)
+        MainWindow.setMinimumWidth(self.width_ratio*600)
         self.temp_window =MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBoxProducts = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBoxProducts.setGeometry(QtCore.QRect(80, 40, 451, 91))
+        self.groupBoxProducts.setGeometry(QtCore.QRect(self.width_ratio*80, self.height_ratio*40, self.width_ratio*451, self.height_ratio*91))
         self.groupBoxProducts.setObjectName("groupBox")
         self.btn_products = QtWidgets.QPushButton(self.groupBoxProducts)
-        self.btn_products.setGeometry(QtCore.QRect(40, 40, 121, 31))
+        self.btn_products.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*40, self.width_ratio*121, self.height_ratio*31))
         self.btn_products.setObjectName("btn_products")
         self.btn_evaluation = QtWidgets.QPushButton(self.groupBoxProducts)
-        self.btn_evaluation.setGeometry(QtCore.QRect(270, 40, 121, 31))
+        self.btn_evaluation.setGeometry(QtCore.QRect(self.width_ratio*270, self.height_ratio*40, self.width_ratio*121, self.height_ratio*31))
         self.btn_evaluation.setObjectName("btn_evaluation")
         self.groupBoxEvaluation = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBoxEvaluation.setGeometry(QtCore.QRect(80, 160, 451, 91))
+        self.groupBoxEvaluation.setGeometry(QtCore.QRect(self.width_ratio*80, self.height_ratio*160, self.width_ratio*451, self.height_ratio*91))
         self.groupBoxEvaluation.setObjectName("groupBoxEvaluation")
         self.btn_time_series = QtWidgets.QPushButton(self.groupBoxEvaluation)
-        self.btn_time_series.setGeometry(QtCore.QRect(40, 40, 121, 31))
+        self.btn_time_series.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*40, self.width_ratio*121, self.height_ratio*31))
         self.btn_time_series.setObjectName("btn_time_series")
         self.btn_analysis = QtWidgets.QPushButton(self.groupBoxEvaluation)
-        self.btn_analysis.setGeometry(QtCore.QRect(270, 40, 121, 31))
+        self.btn_analysis.setGeometry(QtCore.QRect(self.width_ratio*270, self.height_ratio*40, self.width_ratio*121, self.height_ratio*31))
         self.btn_analysis.setObjectName("btn_analysis")
         self.groupBoxPredictions = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBoxPredictions.setGeometry(QtCore.QRect(80, 280, 451, 91))
+        self.groupBoxPredictions.setGeometry(QtCore.QRect(self.width_ratio*80, self.height_ratio*280, self.width_ratio*451, self.height_ratio*91))
         self.groupBoxPredictions.setObjectName("groupBoxPredictions")
         self.btn_model = QtWidgets.QPushButton(self.groupBoxPredictions)
-        self.btn_model.setGeometry(QtCore.QRect(40, 40, 121, 31))
+        self.btn_model.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*40, self.width_ratio*121, self.height_ratio*31))
         self.btn_model.setObjectName("btn_model")
         self.btn_prediction = QtWidgets.QPushButton(self.groupBoxPredictions)
-        self.btn_prediction.setGeometry(QtCore.QRect(270, 40, 121, 31))
+        self.btn_prediction.setGeometry(QtCore.QRect(self.width_ratio*270, self.height_ratio*40, self.width_ratio*121, self.height_ratio*31))
         self.btn_prediction.setObjectName("btn_prediction")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 622, 22))
+        self.menubar.setGeometry(QtCore.QRect(self.width_ratio*0, self.height_ratio*0, self.width_ratio*622, self.height_ratio*22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusBar)
 
         self.btn_products.clicked.connect(self.btn_products_clicked)
         self.btn_evaluation.clicked.connect(self.btn_evaluation_clicked)

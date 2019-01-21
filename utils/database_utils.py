@@ -8,12 +8,15 @@ class DatabaseConnect:
         """
                         Create a connection to the database
         """
-        self.connection = pymysql.connect(host='localhost',
-                                          db='fpat_db',
-                                          user="root",
-                                          charset='utf8mb4',
-                                          cursorclass=pymysql.cursors.DictCursor)
-    
+        try:
+            self.connection = pymysql.connect(host='localhost',
+                                              db='fpat_db',
+                                              user="root",
+                                              charset='utf8mb4',
+                                              cursorclass=pymysql.cursors.DictCursor)
+        except Exception as ex:
+            QMessageBox.about(QMessageBox(), "Warning", str(ex))
+
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                                 USERS FOR LOGIN SYSTEM
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -22,7 +25,7 @@ class DatabaseConnect:
                                     Authenticate the User to login the system
         :param un: Username
         :param password: Secret key to authenticate the user
-        :return:
+        :return: authorised (True/False)
         """
         try:
             with self.connection.cursor() as cursor:
@@ -64,7 +67,7 @@ class DatabaseConnect:
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     def get_products(self, evaluate=None, window=QMessageBox()):
         """
-        # Return all the Products
+        # Get all the Products
         :return: List of all the products
         """
         product_list = []
@@ -281,7 +284,7 @@ class DatabaseConnect:
 
                 # Select all answers of the selected evaluation
                 if answers_ids:
-                    answers_query = "SELECT dimension, answer FROM fpat_evaluation_answers " \
+                    answers_query = "SELECT dimension, question, answer FROM fpat_evaluation_answers " \
                                     "WHERE id in ({id_list})".format(
                                     id_list=",".join([str(answer["evalution_answers_ID"]) for answer in answers_ids]))
                     cursor.execute(answers_query)
@@ -294,6 +297,34 @@ class DatabaseConnect:
             print(ex)
             QMessageBox.about(window, "Warning", "Database Error !!!")
         return answers
+
+    def get_attachments(self, window, product_id ):
+        attachments = {}
+        try:
+
+            with self.connection.cursor() as cursor:
+                # Get Evaluation records of a product
+                if product_id:
+                    product_query = "select evalutions_ID from fpat_product where id={id};".format(id=product_id)
+                    cursor.execute(product_query)
+                    product_dict = cursor.fetchone()
+                    if "evalutions_ID" in product_dict:
+                        evaluation_id = product_dict["evalutions_ID"]
+                    else:
+                        evaluation_id = None
+                else:
+                    evaluation_id = None
+
+                if evaluation_id:
+                    product_query = "select id, attachment_one, attachment_two from fpat_evalutions where id={id};".format(id=evaluation_id)
+                    cursor.execute(product_query)
+                    attachments.update(cursor.fetchone())
+
+        except Exception as ex:
+            print(ex)
+            QMessageBox.about(window, "Warning", "Database Error !!!")
+        return attachments
+
 
     def create_evaluation(self, product_id, attachment_one, attachment_two, window=QMessageBox()):
         """
@@ -572,8 +603,18 @@ class DatabaseConnect:
                 cursor.close()
                 return True
         except Exception as ex:
-            print(ex)
-            QMessageBox.about(window, "Warning", "Database Error !!!")
+            if type(ex) == 'IntegrityError':
+                QMessageBox.about(window, "IntegrityError",  "This Time series has a child record")
+            else:
+                if "fpat_models" in str(ex):
+                    warning = "Cannot delete or update because this time-series is used in a Model record"
+                    QMessageBox.about(window, "Warning", warning)
+                elif "fpat_product" in str(ex):
+                    warning = "Cannot delete or update because this time-series is bind with the Product record"
+                    QMessageBox.about(window, "Warning", warning)
+                else:
+                    warning = str(ex)
+                    QMessageBox.about(window, "Warning", warning)
             return False
 
     def update_timeseries_productId(self, timeseries_id, product_id, window=QMessageBox()):
@@ -644,7 +685,6 @@ class DatabaseConnect:
     def get_models(self, evaluate=None, window=QMessageBox()):
         """
                                         GET LIST OF MODELS FROM DATABASE
-        # Return all the models
         :return: List of all the models
         """
         model_list = []
@@ -737,7 +777,7 @@ class DatabaseConnect:
     def update_model_record(self, name, me1, me10, me11, me12, me13, me14, me15, me16,me2, me3, me4, me5, me6, me7, me8,
                             me9, description, param1, param2, param3, type, time_series_ID, model_id, window=QMessageBox()):
         """
-                                Update a Model
+                                Update a model record in the database
         :param name:
         :param me1:
         :param me10:

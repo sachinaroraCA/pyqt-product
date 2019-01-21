@@ -6,13 +6,17 @@ class AnalysisWindow(QtWidgets.QMainWindow):
         super(AnalysisWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Analysis")
         self.ui = Ui_MainWindow(self)
+        self.setWindowState(QtCore.Qt.WindowMaximized)
+        self.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
 
 
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(550)
-        MainWindow.setFixedWidth(600)
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(600, 550)
+        MainWindow.setFixedHeight(self.height_ratio*550)
+        MainWindow.setFixedWidth(self.width_ratio*600)
         self.temp_window = MainWindow
         self.selected_timeseriesId = None
         self.layout = {}
@@ -20,54 +24,55 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.lbl_timeseries = QtWidgets.QLabel(self.centralwidget)
-        self.lbl_timeseries.setGeometry(QtCore.QRect(30, 10, 101, 17))
+        self.lbl_timeseries.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*10, self.width_ratio*101, self.height_ratio*17))
         self.lbl_timeseries.setObjectName("lbl_timeseries")
         self.scrollArea_timeseries = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea_timeseries.setGeometry(QtCore.QRect(30, 60, 329, 101))
+        self.scrollArea_timeseries.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*60, self.width_ratio*329, self.height_ratio*101))
         self.scrollArea_timeseries.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_timeseries.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_timeseries.setWidgetResizable(True)
         self.scrollArea_timeseries.setObjectName("scrollArea_timeseries")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 313, 99))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, self.width_ratio*313, self.height_ratio*99))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.scrollArea_timeseries.setWidget(self.scrollAreaWidgetContents_3)
         self.groupBox_timeseries = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_timeseries.setGeometry(QtCore.QRect(400, 10, 161, 151))
+        self.groupBox_timeseries.setGeometry(QtCore.QRect(self.width_ratio*400, self.height_ratio*10, self.width_ratio*161, self.height_ratio*151))
         self.groupBox_timeseries.setTitle("")
         self.groupBox_timeseries.setObjectName("groupBox_timeseries")
 
         self.btn_analyse = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_analyse.setGeometry(QtCore.QRect(20, 30, 121, 25))
+        self.btn_analyse.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*30, self.width_ratio*121, self.height_ratio*25))
         self.btn_analyse.setObjectName("btn_analyse")
         self.btn_export = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_export.setGeometry(QtCore.QRect(20, 70, 121, 25))
+        self.btn_export.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*70, self.width_ratio*121, self.height_ratio*25))
         self.btn_export.setObjectName("btn_export")
         self.btn_return = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_return.setGeometry(QtCore.QRect(20, 110, 121, 25))
+        self.btn_return.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*110, self.width_ratio*121, self.height_ratio*25))
         self.btn_return.setObjectName("btn_return_2")
         self.txt_timeseries = QtWidgets.QLineEdit(self.centralwidget)
-        self.txt_timeseries.setGeometry(QtCore.QRect(30, 30, 329, 25))
+        self.txt_timeseries.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*30, self.width_ratio*329, self.height_ratio*25))
         self.txt_timeseries.setObjectName("txt_timeseries")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(30, 170, 531, 350))
+        self.tabWidget.setGeometry(QtCore.QRect(self.width_ratio*30, self.height_ratio*170, self.width_ratio*531, self.height_ratio*350))
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setElideMode(QtCore.Qt.ElideNone)
         self.tabWidget.setObjectName("tabWidget")
+
         for index in range(1, 11):
+
             self.tab_index = QtWidgets.QWidget()
             self.tab_index.setObjectName("tab_index"+str(index))
             self.tabWidget.addTab(self.tab_index, "index"+str(index))
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, self.width_ratio*615, self.height_ratio*22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
         self.timeseries_list_view()
         self.txt_timeseries.textChanged.connect(self.timeseriesfilterClicked)
         self.btn_analyse.clicked.connect(self.btn_analyse_clicked)
@@ -90,9 +95,9 @@ class Ui_MainWindow(object):
         self.txt_timeseries.setPlaceholderText(_translate("MainWindow", " Search"))
 
     def btn_analyse_clicked(self):
+        self.statusbar.showMessage("Analysing " + self.selected_timeseries + "...")
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.show_graph(show=True)
         self.time_series_data = db.get_timeseries_details(timeseries_id= self.selected_timeseriesId,
                                                           window=self.temp_window)
         self.analysed_data = []
@@ -100,24 +105,18 @@ class Ui_MainWindow(object):
             self.create_graph(source_file=self.time_series_data["source_file"],
                               time_series_type=self.time_series_data["file_type"],
                               index=index)
+        self.show_graph(show=True)
+        self.statusbar.showMessage("", 1)
 
     def btn_export_clicked(self):
         try:
+
             import pandas as pd
             if self.analysed_data:
-
-                file_dailog = QtWidgets.QFileDialog()
-                default_file_extension = '.csv'
-
-                name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-                if name:
-                    if default_file_extension not in name:
-                        name += default_file_extension
-
-                    df = pd.DataFrame(self.analysed_data)
-                    df.to_csv(name, sep='\t', encoding='utf-8', index=False,
-                              columns=['index', "sub_index", "standard_value", "analysed_value"])
-                    QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
+                from utils.window_utils import export_file
+                self.statusbar.showMessage("Exporting " + self.selected_timeseries + "...")
+                export_file(window=self.temp_window, export_data=self.analysed_data)
+                self.statusbar.showMessage("", 1)
         except Exception as ex:
             QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
 
@@ -171,7 +170,7 @@ class Ui_MainWindow(object):
                     binding_layout = QtWidgets.QHBoxLayout()
                     lbl_index = QtWidgets.QLabel()
                     lbl_index.setText("index" + str(index) + "-" + str(sub_index + 1)+":")
-                    lbl_index.setMinimumWidth(70)
+                    lbl_index.setMinimumWidth(80)
 
                     binding_layout.addWidget(lbl_index)
                     txt_index = QtWidgets.QLineEdit()
@@ -262,7 +261,7 @@ class Ui_MainWindow(object):
         self.timeseries_listWidget.clear()
         index = 0
         for item in self.timeseries_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QtWidgets.QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(1, self.timeseriesId_list[index])

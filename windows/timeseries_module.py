@@ -11,6 +11,8 @@ class TimeSeriesWindow(QMainWindow):
         self.setWindowTitle("Financial Product Analysis Tool - Time Series")
         self.ui = Ui_MainWindow(self)
         self.parent_win = parent
+        self.setWindowState(QtCore.Qt.WindowMaximized)
+        self.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
 
 
 class Ui_MainWindow(object):
@@ -20,75 +22,78 @@ class Ui_MainWindow(object):
     def __init__(self, MainWindow):
 
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(439)
-        MainWindow.setFixedWidth(615)
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(600, 450)
+        MainWindow.setMinimumHeight(self.height_ratio*450)
+        MainWindow.setMinimumWidth(self.width_ratio*600)
+        MainWindow.setWindowState(QtCore.Qt.WindowMaximized)
         self.temp_window = MainWindow
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.txt_timeseries = QtWidgets.QLineEdit(self.centralwidget)
-        self.txt_timeseries.setGeometry(QtCore.QRect(50, 60, 329, 25))
+        self.txt_timeseries.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*60, self.width_ratio*329, self.height_ratio*25))
         self.txt_timeseries.setObjectName("txt_timeseries")
         self.groupBox_timeseries = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_timeseries.setGeometry(QtCore.QRect(380, 40, 131, 151))
+        self.groupBox_timeseries.setGeometry(QtCore.QRect(self.width_ratio*380, self.height_ratio*46, self.width_ratio*131, self.height_ratio*145))
         self.groupBox_timeseries.setTitle("")
         self.groupBox_timeseries.setObjectName("groupBox_timeseries")
         self.btn_delete = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_delete.setGeometry(QtCore.QRect(20, 60, 91, 25))
+        self.btn_delete.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*55, self.width_ratio*90, self.height_ratio*25))
         self.btn_delete.setObjectName("btn_delete")
         self.btn_addNew = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_addNew.setGeometry(QtCore.QRect(20, 30, 89, 25))
+        self.btn_addNew.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*25, self.width_ratio*90, self.height_ratio*25))
         self.btn_addNew.setObjectName("btn_addNew")
         self.btn_export = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_export.setGeometry(QtCore.QRect(20, 120, 91, 25))
+        self.btn_export.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*115, self.width_ratio*90, self.height_ratio*25))
         self.btn_export.setObjectName("btn_export")
         self.btn_modify = QtWidgets.QPushButton(self.groupBox_timeseries)
-        self.btn_modify.setGeometry(QtCore.QRect(20, 90, 89, 25))
+        self.btn_modify.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*85, self.width_ratio*90, self.height_ratio*25))
         self.btn_modify.setObjectName("btn_modify")
         self.scrollArea_timeseries = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea_timeseries.setGeometry(QtCore.QRect(50, 90, 329, 101))
+        self.scrollArea_timeseries.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*90, self.width_ratio*329, self.height_ratio*101))
         self.scrollArea_timeseries.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_timeseries.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_timeseries.setWidgetResizable(True)
         self.scrollArea_timeseries.setObjectName("scrollArea_timeseries")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 313, 99))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, self.width_ratio*313, self.height_ratio*99))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.scrollArea_timeseries.setWidget(self.scrollAreaWidgetContents_3)
         self.lbl_timeseries = QtWidgets.QLabel(self.centralwidget)
-        self.lbl_timeseries.setGeometry(QtCore.QRect(50, 20, 101, 17))
+        self.lbl_timeseries.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*20, self.width_ratio*101, self.height_ratio*17))
         self.lbl_timeseries.setObjectName("lbl_timeseries")
         self.scrollArea_products = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea_products.setGeometry(QtCore.QRect(50, 280, 329, 101))
+        self.scrollArea_products.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*280, self.width_ratio*329, self.height_ratio*101))
         self.scrollArea_products.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_products.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea_products.setWidgetResizable(True)
         self.scrollArea_products.setObjectName("scrollArea_products")
         self.scrollAreaWidgetContents_7 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 313, 99))
+        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, self.width_ratio*313, self.height_ratio*99))
         self.scrollAreaWidgetContents_7.setObjectName("scrollAreaWidgetContents_7")
         self.scrollArea_products.setWidget(self.scrollAreaWidgetContents_7)
         self.txt_products = QtWidgets.QLineEdit(self.centralwidget)
-        self.txt_products.setGeometry(QtCore.QRect(50, 250, 329, 25))
+        self.txt_products.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*250, self.width_ratio*329, self.height_ratio*25))
         self.txt_products.setObjectName("txt_products")
         self.lbl_product = QtWidgets.QLabel(self.centralwidget)
-        self.lbl_product.setGeometry(QtCore.QRect(50, 220, 101, 17))
+        self.lbl_product.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*220, self.width_ratio*101, self.height_ratio*17))
         self.lbl_product.setObjectName("lbl_product")
         self.groupBox_products = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_products.setGeometry(QtCore.QRect(380, 230, 131, 151))
+        self.groupBox_products.setGeometry(QtCore.QRect(self.width_ratio*380, self.height_ratio*236, self.width_ratio*131, self.height_ratio*145))
         self.groupBox_products.setTitle("")
         self.groupBox_products.setObjectName("groupBox_products")
         self.btn_unbind = QtWidgets.QPushButton(self.groupBox_products)
-        self.btn_unbind.setGeometry(QtCore.QRect(20, 80, 91, 25))
+        self.btn_unbind.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*70, self.width_ratio*90, self.height_ratio*25))
         self.btn_unbind.setObjectName("btn_unbind")
         self.btn_bind = QtWidgets.QPushButton(self.groupBox_products)
-        self.btn_bind.setGeometry(QtCore.QRect(20, 50, 89, 25))
+        self.btn_bind.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*40, self.width_ratio*90, self.height_ratio*25))
         self.btn_bind.setObjectName("btn_bind")
         self.btn_return = QtWidgets.QPushButton(self.groupBox_products)
-        self.btn_return.setGeometry(QtCore.QRect(20, 110, 89, 25))
+        self.btn_return.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*100, self.width_ratio*90, self.height_ratio*25))
         self.btn_return.setObjectName("btn_return")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, self.width_ratio*615, self.height_ratio*22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -139,6 +144,7 @@ class Ui_MainWindow(object):
         self.btn_unbind.setText(_translate("MainWindow", "Unbind"))
         self.btn_bind.setText(_translate("MainWindow", "Bind"))
         self.btn_return.setText(_translate("MainWindow", "Return"))
+        self.temp_window.setWindowState(QtCore.Qt.WindowMaximized)
 
     def btn_addNew_clicked(self):
         """
@@ -158,28 +164,10 @@ class Ui_MainWindow(object):
 
     def btn_export_clicked(self):
         """
-                    Export the time-series data as a CSV file
+                    Export the time-series data as a Exel/CSV file
         """
-        try:
-            file_dailog = QtWidgets.QFileDialog()
-            default_file_extension = '.csv'
-
-            name = file_dailog.getSaveFileName(self.temp_window, 'Save File')[0]
-            if name:
-                if default_file_extension not in name:
-                    name += default_file_extension
-
-                timeseries_info = self.get_timeseries_details()
-                keys = list(timeseries_info.keys())
-                import csv
-                with open(name, 'w+') as output_file:
-                    dict_writer = csv.DictWriter(output_file, keys)
-                    dict_writer.writeheader()
-                    dict_writer.writerow(timeseries_info)
-                    output_file.close()
-                QtWidgets.QMessageBox.about(self.temp_window, "info", "Exported data successfully !!!")
-        except Exception as ex:
-            QtWidgets.QMessageBox.about(self.temp_window, "Error", str(ex))
+        from utils.window_utils import export_file
+        export_file(window=self.temp_window, export_data=self.get_timeseries_details())
 
     def btn_modify_clicked(self):
         """
@@ -326,7 +314,7 @@ class Ui_MainWindow(object):
         self.timeseries_listWidget.clear()
         index = 0
         for item in self.timeseries_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QtWidgets.QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(1, self.timeseriesId_list[index])
@@ -389,7 +377,7 @@ class Ui_MainWindow(object):
         self.listWidget_product.clear()
         index = 0
         for item in self.products_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QtWidgets.QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(1, self.productId_list[index])

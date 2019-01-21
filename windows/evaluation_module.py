@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, Qt
 from PyQt5.QtWidgets import QMainWindow, QListWidget, QMessageBox, QListWidgetItem
 from utils.database_utils import DatabaseConnect
 from utils.graph_utils import BAR_COLORS, create_graph_indicator
@@ -12,6 +12,8 @@ class EvaluationWindow(QMainWindow):
         super(EvaluationWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Evaluation")
         self.ui = Ui_MainWindow(self)
+        self.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
+        self.setWindowState(QtCore.Qt.WindowMaximized)
 
 
 class Ui_MainWindow(object):
@@ -21,46 +23,47 @@ class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         self.temp_window = MainWindow
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedHeight(450)
-        MainWindow.setFixedWidth(600)
-        MainWindow.setMouseTracking(False)
-        MainWindow.setTabletTracking(False)
+
+        from utils.window_utils import get_resolution_ratio
+        self.width_ratio, self.height_ratio = get_resolution_ratio(600, 450)
+        MainWindow.setMinimumHeight(self.height_ratio*450)
+        MainWindow.setMinimumWidth(self.width_ratio*600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(50, 20, 71, 17))
+        self.label.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*20, self.width_ratio*71, self.height_ratio*17))
         self.label.setObjectName("label")
 
         self.txt_search = QtWidgets.QLineEdit(self.centralwidget)
         self.txt_search.setPlaceholderText("  Search")
-        self.txt_search.setGeometry(QtCore.QRect(50, 60, 329, 25))
+        self.txt_search.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*60, self.width_ratio*329, self.height_ratio*25))
         self.txt_search.setObjectName("txt_search")
 
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(380, 40, 131, 151))
+        self.groupBox.setGeometry(QtCore.QRect(self.width_ratio*380, self.height_ratio*45, self.width_ratio*131, self.height_ratio*150))
         self.groupBox.setObjectName("groupBox")
 
         self.btn_reset = QtWidgets.QPushButton(self.groupBox)
-        self.btn_reset.setGeometry(QtCore.QRect(20, 80, 91, 25))
+        self.btn_reset.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*80, self.width_ratio*91, self.height_ratio*25))
         self.btn_reset.setObjectName("btn_reset")
 
         self.btn_evaluate = QtWidgets.QPushButton(self.groupBox)
-        self.btn_evaluate.setGeometry(QtCore.QRect(20, 40, 89, 25))
+        self.btn_evaluate.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*40, self.width_ratio*89, self.height_ratio*25))
         self.btn_evaluate.setObjectName("btn_evaluate")
 
         self.btn_return = QtWidgets.QPushButton(self.groupBox)
-        self.btn_return.setGeometry(QtCore.QRect(20, 120, 91, 25))
+        self.btn_return.setGeometry(QtCore.QRect(self.width_ratio*20, self.height_ratio*120, self.width_ratio*91, self.height_ratio*25))
         self.btn_return.setObjectName("btn_return")
 
         self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea.setGeometry(QtCore.QRect(50, 90, 329, 105))
+        self.scrollArea.setGeometry(QtCore.QRect(self.width_ratio*50, self.height_ratio*90, self.width_ratio*329, self.height_ratio*105))
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 309, 105))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, self.width_ratio*309, self.height_ratio*105))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents_3)
 
@@ -77,33 +80,35 @@ class Ui_MainWindow(object):
 
         # set the layout
         self.graph_layout = QtWidgets.QVBoxLayout()
-        self.graph_layout.setGeometry(QtCore.QRect(40, 220, 481, 250))
+        self.graph_layout.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*220, self.width_ratio*481, self.height_ratio*250))
 
         self.lbl_evaluation_status = QtWidgets.QLabel()
-        self.lbl_evaluation_status.setGeometry(QtCore.QRect(10, 30, 500, 17))
+        self.lbl_evaluation_status.setGeometry(QtCore.QRect(self.width_ratio*10, self.height_ratio*30, self.width_ratio*500, self.height_ratio*17))
         self.lbl_evaluation_status.setObjectName("lbl_evaluation_status")
-
-        self.lbl_evaluation_none = QtWidgets.QLabel()
-        self.lbl_evaluation_none.setGeometry(QtCore.QRect(10, 30, 500, 17))
-        self.lbl_evaluation_none.setObjectName("lbl_evaluation_none")
-        self.lbl_evaluation_none.setText("\t\tNot Evaluated")
 
         self.graph_layout.addWidget(self.lbl_evaluation_status)
 
         self.groupBox_overview = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_overview.setGeometry(QtCore.QRect(40, 220, 481, 180))
+        self.groupBox_overview.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*220, self.width_ratio*481, self.height_ratio*180))
         self.groupBox_overview.setObjectName("groupBox_overview")
         self.groupBox_overview.setLayout(self.graph_layout)
 
+        self.lbl_evaluation_none = QtWidgets.QLabel()
+        self.lbl_evaluation_none.setGeometry(QtCore.QRect(0, 0, self.width_ratio * 500, self.height_ratio * 17))
+        self.lbl_evaluation_none.setObjectName("lbl_evaluation_none")
+        self.lbl_evaluation_none.setText("Not Evaluated")
+        self.lbl_evaluation_none.setAlignment(QtCore.Qt.AlignCenter)
+        self.lbl_evaluation_none.setStyleSheet("color:red;background-color:white;")
+
         self.none_layout = QtWidgets.QVBoxLayout()
-        self.none_layout.setGeometry(QtCore.QRect(40, 220, 481, 250))
+        self.none_layout.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*220, self.width_ratio*481, self.height_ratio*250))
         self.none_layout.addWidget(self.lbl_evaluation_none)
 
         self.graph_layout2 = QtWidgets.QVBoxLayout()
-        self.graph_layout2.setGeometry(QtCore.QRect(40, 378, 481, 55))
+        self.graph_layout2.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*378, self.width_ratio*481, self.height_ratio*55))
 
         self.groupBox_3 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_3.setGeometry(QtCore.QRect(40, 378, 481, 55))
+        self.groupBox_3.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*378, self.width_ratio*481, self.height_ratio*55))
         self.groupBox_3.setLayout(self.graph_layout2)
 
         create_graph_indicator(self.graph_layout2)
@@ -111,18 +116,18 @@ class Ui_MainWindow(object):
         self.groupBox_3.hide()
 
         self.groupBox_overview_none = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_overview_none.setGeometry(QtCore.QRect(40, 220, 481, 180))
+        self.groupBox_overview_none.setGeometry(QtCore.QRect(self.width_ratio*40, self.height_ratio*220, self.width_ratio*481, self.height_ratio*180))
         self.groupBox_overview_none.setObjectName("groupBox_overview_none")
         self.groupBox_overview_none.setLayout(self.none_layout)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, self.width_ratio*615, self.height_ratio*22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusBar)
 
         self.load_products_list()
         self.selected_product = None
@@ -133,7 +138,6 @@ class Ui_MainWindow(object):
         self.btn_return.clicked.connect(self.btn_return_clicked)
         self.txt_search.textChanged.connect(self.search_product)
 
-        self.btn_evaluate.setDisabled(True)
         self.btn_reset.setDisabled(True)
 
         self.retranslateUi(MainWindow)
@@ -152,6 +156,8 @@ class Ui_MainWindow(object):
         self.groupBox_overview.setVisible(False)
         self.lbl_evaluation_status.setText(_translate("MainWindow", "\t\tNot evaluated"))
 
+        MainWindow.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
+
     def btn_evaluate_clicked(self):
         """
                 Open the evaluation evaluate window and hide the current window.
@@ -168,7 +174,9 @@ class Ui_MainWindow(object):
             if len(product_title) > 70:
                 product_title = product_title[:70] + "..."
             self.evaluation_evaluate_win.ui.lbl_prduct.setText("  "+product_title + " :")
-            self.evaluation_evaluate_win.ui.lbl_prduct.setFixedHeight(20)
+            self.evaluation_evaluate_win.ui.lbl_prduct.setFixedHeight(self.height_ratio*20)
+            if self.isEvaluated_product:
+                self.evaluation_evaluate_win.ui.load_record()
             self.evaluation_evaluate_win.show()
 
     def list_item_event(self, item):
@@ -187,7 +195,6 @@ class Ui_MainWindow(object):
         if self.isEvaluated_product:
             self.groupBox_overview.setVisible(True)
             self.groupBox_overview_none.setVisible(False)
-            self.btn_evaluate.setDisabled(True)
             self.btn_reset.setEnabled(True)
             graph_scores = get_scores(product_id=self.selected_productId)
             x, y = list(graph_scores.keys()), list(graph_scores.values())
@@ -195,9 +202,7 @@ class Ui_MainWindow(object):
             self.groupBox_3.show()
             self.lbl_evaluation_status.setText(self.selected_product + " Overview Diagram:")
         else:
-            self.btn_evaluate.setEnabled(True)
             self.btn_reset.setDisabled(True)
-            # self.create_graph(x=[], y=[])
             self.groupBox_3.hide()
             self.groupBox_overview.setVisible(False)
             self.groupBox_overview_none.setVisible(True)
@@ -211,7 +216,7 @@ class Ui_MainWindow(object):
         self.listWidget.clear()
         index = 0
         for item in self.products_list:
-            if item.lower().startswith(filter_text.lower()):
+            if str(filter_text.lower()) in str(item.lower()):
                 listitem = QListWidgetItem()
                 listitem.setText(item)
                 listitem.setData(3, self.productId_list[index])
@@ -269,7 +274,6 @@ class Ui_MainWindow(object):
                                                                                                                   window=self.temp_window)
         self.listWidget = QListWidget()
         self.btn_reset.setDisabled(True)
-        self.btn_evaluate.setDisabled(True)
 
         index =0
         for item in self.productId_list:
@@ -290,13 +294,25 @@ class Ui_MainWindow(object):
         :param y:
         :return:
         """
+        final_x = []
+        final_y = []
+        temp_index = 0
+        for index in range(1, 10):
+            final_x.append(index)
+            if index in x:
+                final_y.append(y[temp_index])
+                temp_index += 1
+            else:
+                final_y.append(0)
+
         import pyqtgraph as pg
         # create bar chart
         self.win.removeItem(self.bg)
-        self.bg = pg.BarGraphItem(x=x, height=y, width=0.5, brushes=BAR_COLORS)
+        self.bg = pg.BarGraphItem(x=final_x, height=final_y, width=0.5, brushes=BAR_COLORS)
         self.win.addItem(self.bg)
         self.win.setXRange(0.5, 9.5)
         self.win.setYRange(0, 100)
+        self.win.getPlotItem().getAxis('bottom').setTicks([list(zip(final_x, final_y))])
         self.graph_layout.addWidget(self.win)
         self.groupBox_overview.setLayout(self.graph_layout)
 
