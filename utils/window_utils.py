@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QDialog
 from PyQt5.QtGui import QPixmap
 
 
-SCREEN_RESOLUTION = {}
+SCREEN_RESOLUTION = {"height":600, "width":450}
 
 
 def export_file(window, export_data):
