@@ -6,17 +6,16 @@ class AnalysisWindow(QtWidgets.QMainWindow):
         super(AnalysisWindow, self).__init__(parent)
         self.setWindowTitle("Financial Product Analysis Tool - Analysis")
         self.ui = Ui_MainWindow(self)
-        self.setWindowState(QtCore.Qt.WindowMaximized)
         self.setWindowFlag(QtCore.Qt.WindowMaximizeButtonHint, True)
-
+        self.setWindowState(QtCore.Qt.WindowMaximized)
 
 class Ui_MainWindow(object):
     def __init__(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         from utils.window_utils import get_resolution_ratio
         self.width_ratio, self.height_ratio = get_resolution_ratio(600, 550)
-        MainWindow.setFixedHeight(self.height_ratio*550)
-        MainWindow.setFixedWidth(self.width_ratio*600)
+        MainWindow.setMinimumHeight(self.height_ratio*550)
+        MainWindow.setMinimumWidth(self.width_ratio*600)
         self.temp_window = MainWindow
         self.selected_timeseriesId = None
         self.layout = {}
@@ -98,15 +97,22 @@ class Ui_MainWindow(object):
         self.statusbar.showMessage("Analysing " + self.selected_timeseries + "...")
         from utils.database_utils import DatabaseConnect
         db = DatabaseConnect()
-        self.time_series_data = db.get_timeseries_details(timeseries_id= self.selected_timeseriesId,
-                                                          window=self.temp_window)
+        self.time_series_data = db.get_timeseries_details(timeseries_id= self.selected_timeseriesId, window=self.temp_window)
         self.analysed_data = []
-        for index in range(1, 11):
-            self.create_graph(source_file=self.time_series_data["source_file"],
-                              time_series_type=self.time_series_data["file_type"],
-                              index=index)
-        self.show_graph(show=True)
-        self.statusbar.showMessage("", 1)
+        if "source_file" in self.time_series_data.keys() and self.time_series_data["source_file"]:
+            import os
+            if os.path.exists(self.time_series_data["source_file"]):
+                for index in range(1, 11):
+                    self.create_graph(source_file=self.time_series_data["source_file"],
+                                      time_series_type=self.time_series_data["file_type"],
+                                      index=index)
+                    self.show_graph(show=True)
+                    self.statusbar.showMessage("", 1)
+            else:
+                QtWidgets.QMessageBox.about(self.temp_window, "Info", "Invalid source file !!!")
+
+        else:
+            QtWidgets.QMessageBox.about(self.temp_window, "Info", "No source file found !!!" )
 
     def btn_export_clicked(self):
         try:
@@ -127,6 +133,7 @@ class Ui_MainWindow(object):
         from utils.algo_utils import analyse_module
 
         # Todo: algorithm is to be write for 2-9 index
+
         analysis_data = analyse_module(source_file=source_file,
                                        time_series_type=time_series_type,
                                        index=index
@@ -270,12 +277,3 @@ class Ui_MainWindow(object):
         self.scrollArea_timeseries.setWidget(self.timeseries_listWidget)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

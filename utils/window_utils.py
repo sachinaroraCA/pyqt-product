@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QDialog
 from PyQt5.QtGui import QPixmap
 
 
-SCREEN_RESOLUTION = {"height":600, "width":450}
+SCREEN_RESOLUTION = {"height": 600, "width": 450}
 
 
 def export_file(window, export_data):
@@ -48,7 +48,7 @@ def ImageWindow(win, image_path=None):
     self = QDialog(parent=win)
     self.title = 'Attachment'
     self.left = 10
-    self.top = 10
+    self.top = 30
     self.width = 600
     self.height = 450
 

@@ -207,7 +207,7 @@ class Ui_MainWindow(object):
         self.attachment1_path = file_dailog.getOpenFileName(self.temp_window)[0]
         file_path = self.attachment1_path
         if file_path:
-            self.attachment1_path = copy_file(file_path, dest="attachment")
+            self.attachment1_path = str(copy_file(file_path, dest="attachment")).replace("\\", '/')
             self.btn_attachment1.setAutoFillBackground(True)
             self.btn_attachment1.setText(file_path.split("/")[-1])
             self.btn_attachment1.show()
@@ -218,10 +218,10 @@ class Ui_MainWindow(object):
         :return:
         """
         file_dailog = QFileDialog(self.temp_window)
-        self.attachment2_path = file_dailog.getOpenFileName(self.temp_window)[0]
+        self.attachment2_path = str(file_dailog.getOpenFileName(self.temp_window)[0]).replace("\\", '/')
         file_path = self.attachment2_path
         if file_path:
-            self.attachment2_path = copy_file(file_path, dest="attachment")
+            self.attachment2_path = str(copy_file(file_path, dest="attachment")).replace("\\", '/')
             self.btn_attachment2.setAutoFillBackground(True)
             self.btn_attachment2.setText(file_path.split("/")[-1])
             self.btn_attachment2.show()
@@ -236,14 +236,11 @@ class Ui_MainWindow(object):
 
     def btn_reset_clicked(self):
         selected_tab = self.tab.currentWidget()
-        print("selected tab:", selected_tab.objectName())
         if selected_tab.objectName() != "tab_overview":
             for group_box in selected_tab.children():
                 group_box.children()[0].setExclusive(False)
-                print("group_box:", group_box.title())
                 for option in group_box.children()[1:]:
                     if option.isChecked():
-                        print("Options", option.text())
                         option.setChecked(False)
                 group_box.children()[0].setExclusive(True)
 
@@ -346,7 +343,6 @@ class Ui_MainWindow(object):
                         if option.isChecked():
                             answer = int(option.text())
                             answer_list.append(answer)
-                            print("question::", question, "\nAnswer", answer, "\nDimension", dimension)
                             self.save_answers(question, answer, dimension)
 
         self.temp_window.parent_win.ui.load_products_list()
@@ -366,10 +362,8 @@ class Ui_MainWindow(object):
         """
         from utils.database_utils import DatabaseConnect
         conn = DatabaseConnect()
-        saved = conn.save_answers(answer=answer, question=question, dimension=dimension,
-                                  evaluation_id=self.evaluation_id, window=self.temp_window)
-        if saved:
-            print("Answer saved Successfully !!!!")
+        conn.save_answers(answer=answer, question=question, dimension=dimension,
+                          evaluation_id=self.evaluation_id, window=self.temp_window)
 
     def create_evaluation(self, attachment_one, attachment_two):
         """
@@ -390,7 +384,6 @@ class Ui_MainWindow(object):
         :param y:
         :return:
         """
-        print("x", x, "y", y)
         import pyqtgraph as pg
         # create bar chart
         self.graph_win.removeItem(self.bg)
@@ -442,25 +435,25 @@ class Ui_MainWindow(object):
 
         attachments = db.get_attachments(window=self.temp_window, product_id=self.selected_productId)
         if attachments:
-            if attachments["attachment_one"] is not None and attachments["attachment_one"] != "":
+            if attachments["attachment_one"] and attachments["attachment_one"] != 'None' and attachments["attachment_one"] != "":
                 self.attachment1_path = attachments["attachment_one"]
                 file_path = self.attachment1_path
-                self.btn_attachment1.setAutoFillBackground(True)
                 self.btn_attachment1.setText(file_path.split("/")[-1][:10]+"..")
-                self.btn_attachment1.show()
-                self.btn_attachment1.clicked.disconnect(self.btn_attachment1_clicked)
-                self.btn_attachment1.clicked.connect(self.show_attachment1)
+            self.btn_attachment1.setAutoFillBackground(True)
+            self.btn_attachment1.clicked.disconnect(self.btn_attachment1_clicked)
+            self.btn_attachment1.clicked.connect(self.show_attachment1)
+            self.btn_attachment1.show()
+            self.btn_attachment1.installEventFilter(self.temp_window)
 
-            if attachments["attachment_two"] is not None and attachments["attachment_two"] != "":
+            if attachments["attachment_two"] and attachments["attachment_two"] != 'None' and attachments["attachment_two"] != "":
                 self.attachment2_path = attachments["attachment_two"]
                 file_path = self.attachment2_path
-
-                if file_path:
-                    self.btn_attachment2.setAutoFillBackground(True)
-                    self.btn_attachment2.setText(file_path.split("/")[-1][:10]+"..")
-                    self.btn_attachment2.show()
-                    self.btn_attachment2.clicked.disconnect(self.btn_attachment2_clicked)
-                    self.btn_attachment2.clicked.connect(self.show_attachment2)
+                self.btn_attachment2.setAutoFillBackground(True)
+                self.btn_attachment2.setText(file_path.split("/")[-1][:10]+"..")
+            self.btn_attachment2.show()
+            self.btn_attachment2.clicked.disconnect(self.btn_attachment2_clicked)
+            self.btn_attachment2.clicked.connect(self.show_attachment2)
+            self.btn_attachment2.installEventFilter(self.temp_window)
 
         for tab in tabs:
             if tab and "tab_" in tab.objectName() and tab.objectName() != "tab_overview":
@@ -483,14 +476,17 @@ class Ui_MainWindow(object):
         self.btn_return.setDisabled(True)
 
     def show_attachment1(self):
-        from utils.window_utils import ImageWindow
-        ImageWindow(win=self.temp_window, image_path=self.attachment1_path)
+        if self.attachment1_path and self.attachment1_path != 'None':
+            from utils.window_utils import ImageWindow
+            ImageWindow(win=self.temp_window, image_path=self.attachment1_path)
 
     def show_attachment2(self):
-        from utils.window_utils import ImageWindow
-        ImageWindow(win=self.temp_window, image_path=self.attachment2_path)
+        if self.attachment2_path and self.attachment2_path != 'None':
+            from utils.window_utils import ImageWindow
+            ImageWindow(win=self.temp_window, image_path=self.attachment2_path)
 
     def btn_attachment1_leave(self):
+
         if self.attachment1_path:
             file_path = self.attachment1_path
             self.btn_attachment1.setText(file_path.split("/")[-1][:10] + "..")
@@ -499,7 +495,10 @@ class Ui_MainWindow(object):
 
     def btn_attachment1_enter(self):
         if self.attachment1_path:
+            import os
+
             file_path = self.attachment1_path
+            file_path = os.path.abspath(file_path)
             icon = QIcon(file_path)
             self.btn_attachment1.setText("")
             self.btn_attachment1.setAutoFillBackground(True)
