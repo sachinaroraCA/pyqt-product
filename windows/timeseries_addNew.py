@@ -214,8 +214,6 @@ class Ui_MainWindow(object):
         file_type = self.combo_filetype.currentText()
         memo = self.txt_memo.toPlainText()
 
-        print(name, start_time, end_time, empty_data, series_data)
-
         if name and start_time and end_time and end_time and series_data and empty_data:
             if self.modify:
                 id = db.update_timeseries(product_id=self.selected_productId, timeseries_id=self.selected_timeseriesId,

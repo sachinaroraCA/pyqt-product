@@ -162,6 +162,9 @@ class Ui_MainWindow(object):
 
         self.statusBar = QtWidgets.QStatusBar(MainWindow)
         self.statusBar.setObjectName("statusbar")
+        self.progress = QtGui.QProgressBar(self.statusBar)
+        self.progress.setGeometry(50*self.width_ratio, 0*self.height_ratio, 550*self.width_ratio, 15*self.height_ratio)
+        self.progress.hide()
         MainWindow.setStatusBar(self.statusBar)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -330,6 +333,9 @@ class Ui_MainWindow(object):
         :return:
         """
         self.statusBar.showMessage("Saving evaluation...", 2000)
+        self.progress.show()
+        value = 0
+        self.progress.setValue(value)
         tabs = self.tab.children()[0].children()
         answer_list = []
         self.create_evaluation(self.attachment1_path, self.attachment2_path)
@@ -344,12 +350,16 @@ class Ui_MainWindow(object):
                             answer = int(option.text())
                             answer_list.append(answer)
                             self.save_answers(question, answer, dimension)
+            value = value + 10
+            self.progress.setValue(value)
 
         self.temp_window.parent_win.ui.load_products_list()
         self.btn_reset.setDisabled(True)
         self.btn_save.setDisabled(True)
         self.btn_return.setDisabled(True)
-        self.statusBar.showMessage("", 2000)
+        self.progress.setValue(100)
+        self.progress.hide()
+        self.statusBar.clearMessage()
         QtWidgets.QMessageBox.about(self.temp_window, "Message", 'Evaluation saved successfully !!!')
 
     def save_answers(self, question, answer, dimension):

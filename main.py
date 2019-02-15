@@ -1,4 +1,5 @@
 import sys
+
 from windows.login import Ui_LoginWindow
 from PyQt5 import QtWidgets
 from utils.window_utils import SCREEN_RESOLUTION

@@ -12,6 +12,7 @@ class DatabaseConnect:
             self.connection = pymysql.connect(host='localhost',
                                               db='fpat_db',
                                               user="root",
+                                              password="root",
                                               charset='utf8mb4',
                                               cursorclass=pymysql.cursors.DictCursor)
         except Exception as ex:
@@ -239,7 +240,6 @@ class DatabaseConnect:
                 query = "SELECT id, dimension, question FROM fpat_question order by dimension;"
                 cursor.execute(query)
                 question_list = cursor.fetchall()
-                print(question_list)
             return question_list
         except Exception as ex:
             print(ex)
@@ -894,6 +894,3 @@ class DatabaseConnect:
 
 if __name__ == '__main__':
     conn = DatabaseConnect()
-    dict = conn.get_index_analysis(index=1,
-                                   analyse_type="B")
-    print(dict)

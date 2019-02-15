@@ -290,10 +290,8 @@ class Ui_MainWindow(object):
                 Selected a model from the product list. So display model details in Overview
         :param item:
         """
-        print(repr(item.text()))
         self.selected_model = item.text()
         self.selected_modelId = item.data(1)
-        print(self.selected_modelId)
         item_detail = self.get_model_details(id=self.selected_modelId)
         self.txt_overview.setPlainText(item_detail[0])
 
